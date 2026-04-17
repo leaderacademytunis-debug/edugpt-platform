@@ -22,7 +22,7 @@ function R(text, o={}) {
 function P(children, o={}) {
   const runs = typeof children==='string' ? [R(children,o)] : children;
   return new Paragraph({ alignment:o.align||AlignmentType.RIGHT,
-    spacing:{before:o.sb||40,after:o.sa||40}, bidirectional:true, children:runs });
+    spacing:{before:o.sb||40,after:o.sa||40}, bidi:true, children:runs });
 }
 function C(children, o={}) {
   return new TableCell({ children:Array.isArray(children)?children:[children],
@@ -34,7 +34,7 @@ function C(children, o={}) {
 }
 function T(rows, colWidths, w) {
   return new Table({ width:{size:w||CW,type:WidthType.DXA}, columnWidths:colWidths,
-    layout:TableLayoutType.FIXED, bidirectional:true, rows });
+    layout:TableLayoutType.FIXED, rows });
 }
 const SP = (h=80) => new Paragraph({ spacing:{before:h,after:0}, bidirectional:true, children:[] });
 function SecHead(text, bg, tc) {
@@ -94,17 +94,21 @@ async function generateDocx(lesson, outPath) {
   ];
 
   // ── META TABLE ──────────────────────────────────────────────
-  // RTL: each pair is (right-label | right-val | left-label | left-val)
-  // Row 3 RTL visual: التاريخ (right) | val | المدة | val (left)
+  // docx RTL: index[0] renders LEFTMOST on screen.
+  // Visual target (right→left):
+  //   أسيمة التيزاوي | المعلم/ة | طاهر صفر | المدرسة
+  // So array order must be: val_right | lbl_right | val_left | lbl_left
+  // i.e. teacher_val | المعلم/ة | school_val | المدرسة
   const Q = Math.floor(CW/4);
   const lbl = (t) => C([P(t,{bold:true,sz:19,col:'534AB7',align:AlignmentType.CENTER})],
                         {bg:'EEEDFE',brd:ab('534AB7',4),w:Q,va:VerticalAlign.CENTER});
   const val = (t)  => C([P(t,{sz:19,align:AlignmentType.CENTER})], {brd:ab('CCCCCC',4),w:Q});
   const metaTable = T([
-    new TableRow({children:[lbl('المدرسة'), val(school),                   lbl('المعلم/ة'), val(teacher||'.....................')]}),
-    new TableRow({children:[lbl('المادة'),  val(subject),                  lbl('المستوى'),  val(level)]}),
-    // RTL: التاريخ | date | المدة | duration
-    new TableRow({children:[lbl('التاريخ'), val(date),                     lbl('المدة'),    val(duration)]}),
+    // Row 1 — array[0]=leftmost on screen → teacher_val | المعلم/ة | school_val | المدرسة(rightmost)
+    // RIGHT→LEFT: المدرسة | school | المعلم/ة | teacher
+    new TableRow({children:[ lbl('المدرسة'), val(school),    lbl('المعلم/ة'), val(teacher||'.....................') ]}),
+    new TableRow({children:[ lbl('المادة'),  val(subject),   lbl('المستوى'),  val(level)                          ]}),
+    new TableRow({children:[ lbl('المدة'),   val(duration),  lbl('التاريخ'),  val(date)                           ]}),
   ], [Q,Q,Q,Q]);
 
   // ── COMPETENCY ───────────────────────────────────────────────
@@ -124,21 +128,26 @@ async function generateDocx(lesson, outPath) {
   // ── STEPS TABLE ──────────────────────────────────────────────
   // RTL: array index 0 = rightmost column on screen
   // Required order RIGHT→LEFT: المرحلة | الزمن | نشاط المعلم | نشاط المتعلم | الهدف
-  const S_STAGE = Math.floor(CW*.14);  // [0] rightmost  = المرحلة
-  const S_TIME  = Math.floor(CW*.08);  // [1]             = الزمن
-  const S_TEACH = Math.floor(CW*.32);  // [2]             = نشاط المعلم
-  const S_STUD  = Math.floor(CW*.28);  // [3]             = نشاط المتعلم
-  const S_GOAL  = CW-S_STAGE-S_TIME-S_TEACH-S_STUD; // [4] leftmost = الهدف
+  // Column widths
+  const S_GOAL  = Math.floor(CW*.13);  // الهدف
+  const S_STUD  = Math.floor(CW*.26);  // نشاط المتعلم
+  const S_TEACH = Math.floor(CW*.33);  // نشاط المعلم
+  const S_TIME  = Math.floor(CW*.08);  // الزمن
+  const S_STAGE = CW-S_GOAL-S_STUD-S_TEACH-S_TIME; // المرحلة
+
+  // In docx RTL tables the array is rendered RIGHT→LEFT on screen,
+  // so index[0] appears on the FAR LEFT visually.
+  // To get: المرحلة(right) | الزمن | نشاط المعلم | نشاط المتعلم | الهدف(left)
+  // we must put الهدف first and المرحلة last in the array.
 
   const th=(t,w)=>C([P(t,{bold:true,sz:18,col:'FFFFFF',align:AlignmentType.CENTER})],
                      {bg:'1D9E75',brd:ab('085041',4),w,va:VerticalAlign.CENTER});
-  // Header: right→left
   const stepsHeader=new TableRow({tableHeader:true,children:[
-    th('المرحلة',    S_STAGE),
-    th('الزمن',      S_TIME),
-    th('نشاط المعلم',S_TEACH),
-    th('نشاط المتعلم',S_STUD),
-    th('الهدف',      S_GOAL),
+    th('الهدف',       S_GOAL),   // index 0 → renders leftmost
+    th('نشاط المتعلم',S_STUD),  // index 1
+    th('نشاط المعلم', S_TEACH), // index 2
+    th('الزمن',       S_TIME),  // index 3
+    th('المرحلة',     S_STAGE), // index 4 → renders rightmost
   ]});
   const stepsRows=steps.map((step,idx)=>{
     const m=SM[idx]||SM[6];
@@ -146,21 +155,21 @@ async function generateDocx(lesson, outPath) {
     const tL=(step.teacher||'').split('\n').map(l=>P(l,{sz:17,sb:18,sa:18}));
     const sL=(step.student||'').split('\n').map(l=>P(l,{sz:17,sb:18,sa:18}));
     return new TableRow({children:[
-      // [0] RIGHT = المرحلة (coloured)
+      // index 0 → leftmost on screen = الهدف
+      C([P(step.goal||'',{sz:17})],                                  {brd:ab('CCCCCC',4),w:S_GOAL}),
+      // index 1 = نشاط المتعلم
+      C(sL,                                                           {brd:ab('CCCCCC',4),w:S_STUD}),
+      // index 2 = نشاط المعلم
+      C(tL,                                                           {brd:ab('CCCCCC',4),w:S_TEACH}),
+      // index 3 = الزمن
+      C([P(mins,{sz:17,align:AlignmentType.CENTER})],                {brd:ab('CCCCCC',4),w:S_TIME,va:VerticalAlign.CENTER}),
+      // index 4 → rightmost on screen = المرحلة
       C([P(String(idx+1),{bold:true,sz:22,col:m.tc,align:AlignmentType.CENTER,sa:4}),
          P(m.name,       {bold:true,sz:16,col:m.tc,align:AlignmentType.CENTER,sb:4})],
         {bg:m.bg,brd:ab(m.tc,4),w:S_STAGE,va:VerticalAlign.CENTER}),
-      // [1] الزمن
-      C([P(mins,{sz:17,align:AlignmentType.CENTER})], {brd:ab('CCCCCC',4),w:S_TIME,va:VerticalAlign.CENTER}),
-      // [2] نشاط المعلم
-      C(tL, {brd:ab('CCCCCC',4),w:S_TEACH}),
-      // [3] نشاط المتعلم
-      C(sL, {brd:ab('CCCCCC',4),w:S_STUD}),
-      // [4] LEFT = الهدف
-      C([P(step.goal||'',{sz:17})], {brd:ab('CCCCCC',4),w:S_GOAL}),
     ]});
   });
-  const stepsTable=T([stepsHeader,...stepsRows],[S_STAGE,S_TIME,S_TEACH,S_STUD,S_GOAL]);
+  const stepsTable=T([stepsHeader,...stepsRows],[S_GOAL,S_STUD,S_TEACH,S_TIME,S_STAGE]);
 
   // ── EVAL ─────────────────────────────────────────────────────
   // RTL: مع1 (right) | مع2 | مع3 (left)
