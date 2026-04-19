@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDUGPT — المساعد البيداغوجي التونسي</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gm:#5DCAA5;--gd:#0F6E56;
+  --p:#534AB7;--pl:#EEEDFE;--pd:#3C3489;
+  --b:#185FA5;--bl:#E6F1FB;--bd:#0C447C;
+  --a:#BA7517;--al:#FAEEDA;--ad:#633806;
+  --bg:#F4F4EF;--white:#FFFFFF;
+  --border:#E2E2DA;--text:#111;--muted:#666;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:.65rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--g);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:19px;height:19px}
+.logo-name{font-size:16px;font-weight:700;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted)}
+.nav{display:flex;gap:5px}
+.nbtn{padding:5px 13px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.nbtn:hover,.nbtn.active{background:var(--gl);color:var(--gd);border-color:var(--gm)}
+
+.pbar{height:3px;background:var(--border);position:sticky;top:57px;z-index:40}
+.pbar-fill{height:100%;background:var(--g);transition:width .35s;width:0}
+
+.page{display:none;padding:1.5rem;max-width:920px;margin:0 auto}
+.page.active{display:block}
+
+/* HOME */
+.hero{text-align:center;padding:2rem 1rem 1.5rem}
+.hero-tag{display:inline-block;background:var(--gl);color:var(--gd);border:1px solid var(--gm);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;margin-bottom:.85rem}
+.hero h1{font-size:1.9rem;font-weight:700;margin-bottom:.4rem}
+.hero p{font-size:14px;color:var(--muted);max-width:480px;margin:0 auto 1.25rem;line-height:1.6}
+.hero-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn-g{background:var(--g);color:#fff;border:none;padding:.65rem 1.4rem;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-g:hover{background:var(--gd)}
+.btn-w{background:var(--white);color:var(--text);border:1px solid var(--border);padding:.65rem 1.4rem;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-w:hover{border-color:var(--gm);color:var(--gd)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:1.25rem}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center}
+.kpi-n{font-size:24px;font-weight:700;color:var(--g)}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* GENERATOR */
+.card{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.card-h{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.lvgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.lvbtn{padding:.55rem .25rem;border:1px solid var(--border);border-radius:8px;background:var(--white);text-align:center;cursor:pointer;transition:all .13s}
+.lvbtn:hover{border-color:var(--gm);background:var(--gl)}
+.lvbtn.on{border:2px solid var(--g);background:var(--gl)}
+.lvcirc{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;font-size:11px;font-weight:700}
+.lvlbl{font-size:10px;color:var(--muted)}
+.matgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.matbtn{padding:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--white);display:flex;align-items:center;gap:7px;cursor:pointer;transition:all .13s}
+.matbtn.on{border:2px solid var(--g);background:var(--gl)}
+.matdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.matnm{font-size:12px;font-weight:600}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.flabel{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;display:block}
+.finput{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;transition:border .13s}
+.finput:focus{outline:none;border-color:var(--g)}
+.durgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.durbtn{padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--white);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .13s;font-family:inherit}
+.durbtn.on{border:2px solid var(--g);background:var(--gl);color:var(--gd)}
+.genbtn{width:100%;background:var(--g);color:#fff;border:none;border-radius:9px;padding:.9rem;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;font-family:inherit}
+.genbtn:hover{background:var(--gd)}
+
+/* LOADING */
+.loadbox{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:3rem;text-align:center}
+.spin{width:34px;height:34px;border:3px solid var(--gl);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1.1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lsteps{display:flex;flex-direction:column;gap:7px;margin-top:.85rem;text-align:right;max-width:320px;margin-inline:auto}
+.lsrow{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:7px;background:var(--bg)}
+.lsdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lsdot.d{background:var(--g)}.lsdot.c{background:var(--a)}.lsdot.w{background:var(--border)}
+.lstxt{font-size:12px;color:var(--muted)}.lstxt.d{color:var(--gd)}.lstxt.c{color:var(--a);font-weight:600}
+
+/* VIEWER */
+.vhead{background:var(--white);border:1px solid var(--border);border-radius:11px 11px 0 0;padding:1.1rem 1.25rem;border-bottom:none}
+.vpills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.5rem}
+.vpill{font-size:10px;padding:3px 9px;border-radius:10px;border:1px solid;font-weight:600}
+.vtitle{font-size:19px;font-weight:700}
+.vsub{font-size:12px;color:var(--muted);margin-top:3px}
+.vstamp{font-size:10px;background:var(--gl);color:var(--gd);border:1px solid var(--gm);border-radius:6px;padding:3px 9px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.snav-bar{background:var(--bg);border:1px solid var(--border);border-top:none;border-bottom:none;padding:.55rem 1rem;display:flex;gap:4px;flex-wrap:wrap}
+.snav{font-size:10px;padding:3px 9px;border-radius:14px;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .12s}
+.snav:hover{border-color:var(--gm);color:var(--gd)}
+.snav.on{background:var(--gl);color:var(--gd);border-color:var(--gm);font-weight:600}
+.sblock{border:1px solid var(--border);border-top:none}
+.sblock:last-child{border-radius:0 0 11px 11px}
+.shead{display:flex;align-items:center;gap:9px;padding:.7rem 1.1rem;cursor:pointer;background:var(--white)}
+.shead:hover{background:var(--bg)}
+.snum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sname{font-size:13px;font-weight:600}
+.sdur{font-size:10px;color:var(--muted);margin-right:auto}
+.sarr{color:var(--muted);font-size:11px;transition:transform .2s}
+.sarr.op{transform:rotate(180deg)}
+.sbody{padding:.85rem 1.1rem;background:var(--white);display:none}
+.sbody.op{display:block}
+.slbl{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:.3rem;letter-spacing:.04em}
+.stxt{font-size:12px;line-height:1.75;white-space:pre-line}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.65rem 0}
+.colbox{background:var(--bg);border-radius:7px;padding:.65rem;border:1px solid var(--border)}
+.evalgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.evalcol{border-radius:7px;padding:.65rem}
+.evalh{font-size:11px;font-weight:700;margin-bottom:.35rem}
+.evalb{font-size:11px;line-height:1.65}
+.actbar{background:var(--white);border:1px solid var(--border);border-radius:0 0 11px 11px;border-top:none;padding:.75rem 1.1rem;display:flex;gap:7px;flex-wrap:wrap}
+.abtn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit}
+.abtn:hover{border-color:var(--g);color:var(--gd)}
+.abtn svg{width:13px;height:13px;flex-shrink:0}
+.abtn.green{background:var(--g);color:#fff;border-color:var(--g)}.abtn.green:hover{background:var(--gd)}
+.abtn.purple{background:var(--pl);color:var(--pd);border-color:var(--p)}
+.abtn.amber{background:var(--al);color:var(--ad);border-color:var(--a)}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:100;align-items:center;justify-content:center}
+.moverlay.op{display:flex}
+.modal{background:var(--white);border-radius:13px;border:1px solid var(--border);padding:1.4rem;width:92%;max-width:420px}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:.85rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+.mfield{margin-bottom:.75rem}
+
+/* LIBRARY */
+.libtbar{display:flex;gap:7px;margin-bottom:.85rem;flex-wrap:wrap}
+.swrap{flex:1;display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:7px;padding:0 10px}
+.swrap svg{width:13px;height:13px;color:var(--muted);flex-shrink:0}
+.swrap input{flex:1;border:none;background:transparent;font-size:12px;color:var(--text);padding:7px 0;outline:none;font-family:inherit;direction:rtl}
+.libsel{padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:var(--white);font-size:12px;font-family:inherit;direction:rtl}
+.libgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.libcard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.9rem;cursor:pointer;transition:border-color .13s}
+.libcard:hover{border-color:var(--gm)}
+.ltitle{font-size:13px;font-weight:700;margin:.4rem 0 .2rem}
+.ldate{font-size:11px;color:var(--muted)}
+.lacts{display:flex;gap:4px;margin-top:.5rem;justify-content:flex-end}
+.lact{width:25px;height:25px;border-radius:6px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.lact:hover{border-color:var(--g)}
+.lact svg{width:12px;height:12px;color:var(--muted)}
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:13px}
+
+@media(max-width:580px){
+  .kpi-row,.frow{grid-template-columns:repeat(2,1fr)}
+  .lvgrid{grid-template-columns:repeat(4,1fr)}
+  .matgrid,.twocol,.libgrid{grid-template-columns:1fr}
+  .evalgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L4 7.5v5C4 17.1 7.6 21.5 12 22.5c4.4-1 8-5.4 8-10V7.5L12 3z" fill="white"/><path d="M9.5 12.5l2 2 3.5-3.5" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">EDUGPT</div>
+      <div class="logo-sub">المساعد البيداغوجي — وزارة التربية 2025-2026</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nbtn active" onclick="nav('home',this)">الرئيسية</button>
+    <button class="nbtn" onclick="nav('gen',this)">جذاذة جديدة</button>
+    <button class="nbtn" onclick="nav('lib',this)">المكتبة</button>
+  </div>
+</div>
+<div class="pbar"><div class="pbar-fill" id="pb"></div></div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">المرحلة الابتدائية — تحضيري إلى سادسة</div>
+    <h1>أنشئ جذاذاتك في ثوانٍ</h1>
+    <p>مساعد بيداغوجي ذكي وفق البرامج الرسمية لوزارة التربية التونسية 2025-2026 — جذاذة كاملة + تصدير Word</p>
+    <div class="hero-btns">
+      <button class="btn-g" onclick="nav('gen',document.querySelectorAll('.nbtn')[1])">✦ ابدأ إنشاء جذاذة</button>
+      <button class="btn-w" onclick="nav('lib',document.querySelectorAll('.nbtn')[2])">مكتبة الجذاذات</button>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-n" id="hTotal">0</div><div class="kpi-l">جذاذة محفوظة</div></div>
+      <div class="kpi"><div class="kpi-n">7</div><div class="kpi-l">مستوى دراسي</div></div>
+      <div class="kpi"><div class="kpi-n">9</div><div class="kpi-l">مادة تعليمية</div></div>
+      <div class="kpi"><div class="kpi-n">8</div><div class="kpi-l">خطوات الجذاذة</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GENERATOR -->
+<div class="page" id="page-gen">
+  <div id="formArea">
+    <div class="card">
+      <div class="card-h">المستوى الدراسي</div>
+      <div class="lvgrid" id="lvGrid">
+        <div class="lvbtn" data-v="التحضيري" onclick="selLv(this)"><div class="lvcirc" style="background:#EEEDFE;color:#3C3489">ت</div><div class="lvlbl">تحضيري</div></div>
+        <div class="lvbtn" data-v="السنة الأولى" onclick="selLv(this)"><div class="lvcirc" style="background:#E6F1FB;color:#0C447C">1</div><div class="lvlbl">سنة 1</div></div>
+        <div class="lvbtn" data-v="السنة الثانية" onclick="selLv(this)"><div class="lvcirc" style="background:#EAF3DE;color:#27500A">2</div><div class="lvlbl">سنة 2</div></div>
+        <div class="lvbtn" data-v="السنة الثالثة" onclick="selLv(this)"><div class="lvcirc" style="background:#FAEEDA;color:#633806">3</div><div class="lvlbl">سنة 3</div></div>
+        <div class="lvbtn on" data-v="السنة الرابعة" onclick="selLv(this)"><div class="lvcirc" style="background:#FAECE7;color:#712B13">4</div><div class="lvlbl">سنة 4</div></div>
+        <div class="lvbtn" data-v="السنة الخامسة" onclick="selLv(this)"><div class="lvcirc" style="background:#FBEAF0;color:#72243E">5</div><div class="lvlbl">سنة 5</div></div>
+        <div class="lvbtn" data-v="السنة السادسة" onclick="selLv(this)"><div class="lvcirc" style="background:#E1F5EE;color:#085041">6</div><div class="lvlbl">سنة 6</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">المادة التعليمية</div>
+      <div class="matgrid">
+        <div class="matbtn on" data-v="اللغة العربية" onclick="selMat(this)"><div class="matdot" style="background:#534AB7"></div><div class="matnm">اللغة العربية</div></div>
+        <div class="matbtn" data-v="الرياضيات" onclick="selMat(this)"><div class="matdot" style="background:#185FA5"></div><div class="matnm">الرياضيات</div></div>
+        <div class="matbtn" data-v="اللغة الفرنسية" onclick="selMat(this)"><div class="matdot" style="background:#3B6D11"></div><div class="matnm">اللغة الفرنسية</div></div>
+        <div class="matbtn" data-v="التربية العلمية" onclick="selMat(this)"><div class="matdot" style="background:#1D9E75"></div><div class="matnm">التربية العلمية</div></div>
+        <div class="matbtn" data-v="التربية المدنية" onclick="selMat(this)"><div class="matdot" style="background:#BA7517"></div><div class="matnm">التربية المدنية</div></div>
+        <div class="matbtn" data-v="التربية الإسلامية" onclick="selMat(this)"><div class="matdot" style="background:#D85A30"></div><div class="matnm">التربية الإسلامية</div></div>
+        <div class="matbtn" data-v="التاريخ والجغرافيا" onclick="selMat(this)"><div class="matdot" style="background:#D4537E"></div><div class="matnm">التاريخ والجغرافيا</div></div>
+        <div class="matbtn" data-v="اللغة الإنجليزية" onclick="selMat(this)"><div class="matdot" style="background:#7F77DD"></div><div class="matnm">اللغة الإنجليزية</div></div>
+        <div class="matbtn" data-v="التربية التشكيلية" onclick="selMat(this)"><div class="matdot" style="background:#888780"></div><div class="matnm">التربية التشكيلية</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">تفاصيل الدرس</div>
+      <div class="frow">
+        <div><label class="flabel">عنوان الدرس *</label><input class="finput" id="fTitle" placeholder="النعت والمنعوت، الكسور..."></div>
+        <div><label class="flabel">اسم المدرسة</label><input class="finput" id="fSchool" placeholder="المدرسة الابتدائية..."></div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">اسم المعلم/ة (اختياري)</label><input class="finput" id="fTeacher" placeholder="..."></div>
+        <div><label class="flabel">مدة الحصة</label>
+          <div class="durgrid">
+            <button class="durbtn on" onclick="selDur(this,'45')">45 دق</button>
+            <button class="durbtn" onclick="selDur(this,'60')">60 دق</button>
+            <button class="durbtn" onclick="selDur(this,'90')">90 دق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="genbtn" onclick="startGen()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
+      توليد الجذاذة
+    </button>
+  </div>
+  <div id="loadArea" style="display:none">
+    <div class="loadbox">
+      <div class="spin"></div>
+      <div style="font-size:14px;font-weight:600">جاري توليد الجذاذة...</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">EDUGPT يعمل وفق البرنامج الرسمي 2025-2026</div>
+      <div class="lsteps">
+        <div class="lsrow"><div class="lsdot c"></div><span class="lstxt c">تحليل الدرس وتحديد الكفايات</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">بناء وضعية الانطلاق</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">صياغة مراحل التعلم</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">إعداد شبكة التقييم</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="resultArea" style="display:none"></div>
+</div>
+
+<!-- LIBRARY -->
+<div class="page" id="page-lib">
+  <div class="libtbar">
+    <div class="swrap">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" id="libQ" placeholder="ابحث عن درس..." oninput="renderLib()">
+    </div>
+    <select class="libsel" id="libLv" onchange="renderLib()">
+      <option value="">كل المستويات</option>
+      <option>التحضيري</option><option>السنة الأولى</option><option>السنة الثانية</option>
+      <option>السنة الثالثة</option><option>السنة الرابعة</option><option>السنة الخامسة</option><option>السنة السادسة</option>
+    </select>
+    <select class="libsel" id="libMat" onchange="renderLib()">
+      <option value="">كل المواد</option>
+      <option>اللغة العربية</option><option>الرياضيات</option><option>اللغة الفرنسية</option><option>التربية العلمية</option>
+    </select>
+  </div>
+  <div id="libGrid" class="libgrid"></div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="moverlay" id="expModal">
+  <div class="modal">
+    <h3>تصدير الجذاذة — Word (.doc)</h3>
+    <div class="mfield"><label class="flabel">اسم المدرسة</label><input class="finput" id="ex_school" placeholder="المدرسة الابتدائية..."></div>
+    <div class="mfield"><label class="flabel">اسم المعلم/ة</label><input class="finput" id="ex_teacher" placeholder="اختياري"></div>
+    <div class="mfield"><label class="flabel">المنطقة التعليمية</label><input class="finput" id="ex_region" placeholder="تونس، صفاقس..."></div>
+    <div style="display:flex;gap:7px;margin-top:1rem">
+      <button class="abtn green" style="flex:1;justify-content:center" onclick="doExport()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        تحميل Word
+      </button>
+      <button class="abtn" onclick="document.getElementById('expModal').classList.remove('op')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let SEL_LV  = 'السنة الرابعة';
+let SEL_MAT = 'اللغة العربية';
+let SEL_DUR = '45';
+let openSteps = new Set([0]);
+let curLesson = null;
+let LESSONS   = [];
+
+const SMETA = [
+  {n:'وضعية الانطلاق',nc:'#E1F5EE',nn:'#085041',f:.10},
+  {n:'الاكتشاف',nc:'#E6F1FB',nn:'#042C53',f:.15},
+  {n:'التعلم المنهجي',nc:'#EEEDFE',nn:'#26215C',f:.25},
+  {n:'الإدماج',nc:'#FAEEDA',nn:'#412402',f:.20},
+  {n:'التقييم',nc:'#FAECE7',nn:'#4A1B0C',f:.10},
+  {n:'الدعم',nc:'#FBEAF0',nn:'#4B1528',f:.08},
+  {n:'الإثراء',nc:'#EAF3DE',nn:'#173404',f:.07},
+  {n:'شبكة التقييم',nc:'#F1EFE8',nn:'#444441',f:0},
+];
+const EC = [{bg:'#FAECE7',tc:'#712B13'},{bg:'#FAEEDA',tc:'#633806'},{bg:'#EAF3DE',tc:'#27500A'}];
+const MC = {
+  'اللغة العربية':{bg:'#EEEDFE',tc:'#3C3489'},
+  'الرياضيات':{bg:'#E6F1FB',tc:'#0C447C'},
+  'اللغة الفرنسية':{bg:'#EAF3DE',tc:'#27500A'},
+  'التربية العلمية':{bg:'#E1F5EE',tc:'#085041'},
+};
+const LC = {
+  'السنة الثالثة':{bg:'#FAEEDA',tc:'#633806'},
+  'السنة الرابعة':{bg:'#FAECE7',tc:'#712B13'},
+  'السنة الخامسة':{bg:'#FBEAF0',tc:'#72243E'},
+  'السنة السادسة':{bg:'#E1F5EE',tc:'#085041'},
+};
+
+// ── Nav ──
+function nav(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id==='lib') renderLib();
+  if (id==='home') updateHome();
+}
+
+// ── Form ──
+function selLv(el) { document.querySelectorAll('.lvbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_LV=el.dataset.v; }
+function selMat(el){ document.querySelectorAll('.matbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_MAT=el.dataset.v; }
+function selDur(el,v){ document.querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_DUR=v; }
+
+// ── Generate ──
+async function startGen() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { const el=document.getElementById('fTitle'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
+  show('form',false); show('load',true); show('result',false);
+  document.getElementById('pb').style.width = '10%';
+  animLoad();
+
+  const SYS = `أنت EDUGPT — خبير بيداغوجي تونسي متخصص في التعليم الابتدائي.
+أجب بـ JSON فقط، بدون أي نص خارجه، بدون markdown.
+
+⚠️ RÈGLE CRITIQUE — كل جملة يجب أن تذكر اسم الدرس أو محتواه الفعلي.
+
+🚫 ممنوع تماماً هذه العبارات العامة:
+"يلاحظ الأمثلة" / "يشارك إجاباته شفهياً" / "يستنتج القاعدة" /
+"يُنجز فردياً ثم في ثنائيات" / "يطرح سؤالاً تحفيزياً" / "يُرسّخ المفهوم"
+
+✅ بدلاً منها، اكتب محتوى الدرس الفعلي:
+
+مثال لدرس "حرف الخاء":
+- معلم: "يعرض صور خروف وخيار وخبز، يكتب على السبورة: خـ ـخـ ـخ، يقارن بين خ والحاء"
+- متعلم: "يُعيّن حرف الخاء في كلمة خروف، يكتب خـ 3 مرات في كراسه، يكمل: _روف، _يار"
+
+مثال لدرس "الكسور العادية":
+- معلم: "يقسّم تفاحة إلى 4 أجزاء، يكتب 3/4 ويشرح البسط والمقام، يرسم كسوراً على السبورة"
+- متعلم: "يكتب كسر 2/5 من صورة كعكة، يرتّب: 1/4 و 1/2 و 3/4 تصاعدياً"
+
+القاعدة: كل سطر = اسم الدرس + فعل محدد + مثال ملموس من محتوى الدرس.
+
+JSON المطلوب:
+{"competency":"كفاية تذكر اسم الدرس صراحةً","objectives":["هدف خاص 1","هدف خاص 2","هدف خاص 3"],"tools":"وسائل خاصة بالدرس","steps":[
+  {"teacher":"نشاط المعلم الخاص بهذا الدرس","student":"نشاط المتعلم الخاص بهذا الدرس","goal":"هدف المرحلة"},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"teacher":"...","student":"...","goal":"..."},
+  {"eval":[
+    {"label":"مع1 — الملاءمة","items":["مؤشر خاص بالدرس 1","مؤشر 2","مؤشر 3"]},
+    {"label":"مع2 — الانسجام","items":["مؤشر خاص 1","مؤشر 2","مؤشر 3"]},
+    {"label":"مع3 — الثراء","items":["مؤشر خاص 1","مؤشر 2","مؤشر 3"]}
+  ]}
+]}`;
+
+  const USR = `اكتب جذاذة درس كاملة ومحددة للدرس: "${title}"
+المستوى: ${SEL_LV} | المادة: ${SEL_MAT} | المدة: ${SEL_DUR} دقيقة
+تذكر: كل جملة يجب أن تذكر "${title}" أو محتوى فعلياً منه — لا عبارات عامة.`;
+
+  let data = null;
+  try {
+    const API_URL = window.EDUGPT_API_URL || '/api/claude';
+    const r = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
+    });
+    const j = await r.json();
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    data = JSON.parse(raw);
+  } catch(e) { data = fallback(title); }
+
+  document.getElementById('pb').style.width = '100%';
+  curLesson = {
+    id: Date.now(), title, level: SEL_LV, mat: SEL_MAT, dur: SEL_DUR,
+    date: new Date().toLocaleDateString('ar-TN'),
+    school:   document.getElementById('fSchool').value  || 'المدرسة الابتدائية',
+    teacher:  document.getElementById('fTeacher').value || '',
+    data,
+  };
+  show('load',false); show('result',true);
+  renderResult();
+  setTimeout(()=>{ document.getElementById('pb').style.width='0'; }, 700);
+}
+
+function show(id, v) {
+  const map = {form:'formArea',load:'loadArea',result:'resultArea'};
+  document.getElementById(map[id]).style.display = v ? 'block' : 'none';
+}
+
+function animLoad() {
+  const dots = document.querySelectorAll('.lsdot');
+  const txts = document.querySelectorAll('.lstxt');
+  let i=0;
+  const iv = setInterval(()=>{
+    if(i>=dots.length){clearInterval(iv);return;}
+    dots[i].className='lsdot d'; txts[i].className='lstxt d';
+    if(i+1<dots.length){dots[i+1].className='lsdot c';txts[i+1].className='lstxt c';}
+    i++;
+  }, 1500);
+}
+
+function fallback(title) {
+  return {
+    competency:`يوظّف المتعلم مكتسبات درس "${title}" في وضعيات تواصلية متنوعة.`,
+    objectives:[`يتعرف على مفهوم ${title}.`,`يطبّق في سياقات مختلفة.`,`يُنتج أمثلة من إنشائه.`],
+    tools:'السبورة — الكتاب المدرسي — كراسات الأنشطة — ورقة عمل',
+    steps:[
+      {teacher:`يطرح سؤالاً تحفيزياً مرتبطاً بـ "${title}".\nيكتب الإجابات على السبورة.`,student:'يشارك إجاباته شفهياً.\nيلاحظ الأمثلة.',goal:'استدراج المفهوم وتهيئة الذهن.'},
+      {teacher:'يقدّم وثيقة أو نصاً.\nيطرح أسئلة ملاحظة.',student:'يقرأ ويلاحظ.\nيستخرج المعطيات.',goal:'ملاحظة الظاهرة في سياق حقيقي.'},
+      {teacher:'يُرسّخ المفهوم بأمثلة متدرجة.\nيكتب الملخص مع التلاميذ.',student:'يستنتج القاعدة.\nيدوّن الملخص.',goal:'فهم القاعدة وضبط توظيفها.'},
+      {teacher:'يوزّع ورقة عمل بتمارين متدرجة.\nيتجول ويصحّح.',student:'يُنجز فردياً ثم في ثنائيات.',goal:'توظيف المكتسبات تطبيقياً.'},
+      {teacher:'يطرح 3 أسئلة تقييمية.\nيستعمل بطاقة الملاحظة.',student:'يُجيب شفهياً.\nيُعطي أمثلة.',goal:'التثبّت من مدى الاستيعاب.'},
+      {teacher:'يُقدّم أنشطة مبسّطة للمتعثرين.\nيُشرف على تعلّم الأقران.',student:'يُنجز بطاقات دعم.',goal:'مساعدة المتعثرين تدريجياً.'},
+      {teacher:'يُكلّف المتقدمين بأنشطة إثرائية.',student:'يُنجز بشكل مستقل.\nيعرض إنتاجه.',goal:'تعميق المفهوم في سياقات جديدة.'},
+      {eval:[
+        {label:'مع1 — الملاءمة',items:['يتعرف على المفهوم.','يُسمّي العناصر.','يُجيب ببساطة.']},
+        {label:'مع2 — الانسجام',items:['يُطبّق في سياق مألوف.','يُعطي أمثلة صحيحة.','يشرح بأسلوبه.']},
+        {label:'مع3 — الثراء',items:['يُوظّف في وضعيات جديدة.','يُنتج بشكل مستقل.','يُعلّل إجاباته.']},
+      ]}
+    ]
+  };
+}
+
+// ── Result viewer ──
+function renderResult() {
+  const d = curLesson.data;
+  const dur = parseInt(curLesson.dur);
+  const area = document.getElementById('resultArea');
+  const mc = MC[curLesson.mat]  || {bg:'#F1EFE8',tc:'#444441'};
+  const lc = LC[curLesson.level]|| {bg:'#E1F5EE',tc:'#085041'};
+
+  const navHtml = SMETA.map((s,i)=>
+    `<div class="snav ${i===0?'on':''}" onclick="toStep(${i},this)">${i+1}. ${s.n}</div>`
+  ).join('');
+
+  const stepsHtml = d.steps.map((step,idx)=>{
+    const m = SMETA[idx];
+    const mins = m.f>0 ? Math.round(dur*m.f)+' دق' : '';
+    if(idx===7&&step.eval){
+      const evalHtml = step.eval.map((e,j)=>`
+        <div class="evalcol" style="background:${EC[j].bg}">
+          <div class="evalh" style="color:${EC[j].tc}">${e.label}</div>
+          <div class="evalb" style="color:${EC[j].tc}">${e.items.map(x=>'• '+x).join('<br>')}</div>
+        </div>`).join('');
+      return `<div class="sblock" id="step-${idx}">
+        <div class="shead" onclick="togStep(${idx})">
+          <div class="snum" style="background:${m.nc};color:${m.nn}">${idx+1}</div>
+          <div class="sname">${m.n}</div>
+          <span class="sarr ${openSteps.has(idx)?'op':''}">▾</span>
+        </div>
+        <div class="sbody ${openSteps.has(idx)?'op':''}">
+          <div class="evalgrid">${evalHtml}</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="sblock" id="step-${idx}">
+      <div class="shead" onclick="togStep(${idx})">
+        <div class="snum" style="background:${m.nc};color:${m.nn}">${idx+1}</div>
+        <div class="sname">${m.n}</div>
+        <span class="sdur">${mins}</span>
+        <span class="sarr ${openSteps.has(idx)?'op':''}">▾</span>
+      </div>
+      <div class="sbody ${openSteps.has(idx)?'op':''}">
+        <div class="twocol">
+          <div class="colbox"><div class="slbl">نشاط المعلم</div><div class="stxt">${esc(step.teacher||'')}</div></div>
+          <div class="colbox"><div class="slbl">نشاط المتعلم</div><div class="stxt">${esc(step.student||'')}</div></div>
+        </div>
+        <div class="slbl" style="margin-top:.5rem">الهدف</div>
+        <div class="stxt">${esc(step.goal||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="vhead">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.5rem">
+        <div class="vpills">
+          <span class="vpill" style="background:${lc.bg};color:${lc.tc};border-color:${lc.tc}">${curLesson.level}</span>
+          <span class="vpill" style="background:${mc.bg};color:${mc.tc};border-color:${mc.tc}">${curLesson.mat}</span>
+          <span class="vpill" style="background:#FAEEDA;color:#633806;border-color:#BA7517">${curLesson.dur} دق</span>
+        </div>
+        <div class="vstamp">وزارة التربية 2025-2026</div>
+      </div>
+      <div class="vtitle">${curLesson.title}</div>
+      <div class="vsub">${curLesson.level} — ${curLesson.mat} — ${curLesson.school}</div>
+    </div>
+    <div class="snav-bar">${navHtml}</div>
+    ${stepsHtml}
+    <div class="actbar">
+      <button class="abtn green" onclick="openExport()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" stroke="white" stroke-width="1.5"/><line x1="9" y1="13" x2="15" y2="13" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="17" x2="15" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        تصدير Word
+      </button>
+      <button class="abtn" onclick="printL()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        طباعة PDF
+      </button>
+      <button class="abtn purple" onclick="saveL()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5"/><polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="saveLbl">حفظ في المكتبة</span>
+      </button>
+      <button class="abtn" onclick="resetGen()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        جذاذة جديدة
+      </button>
+    </div>`;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function togStep(i) {
+  openSteps.has(i) ? openSteps.delete(i) : openSteps.add(i);
+  document.querySelector(`#step-${i} .sbody`)?.classList.toggle('op', openSteps.has(i));
+  document.querySelector(`#step-${i} .sarr`)?.classList.toggle('op', openSteps.has(i));
+}
+function toStep(i, el) {
+  document.querySelectorAll('.snav').forEach(n=>n.classList.remove('on')); el.classList.add('on');
+  openSteps.add(i);
+  document.querySelector(`#step-${i} .sbody`)?.classList.add('op');
+  document.querySelector(`#step-${i} .sarr`)?.classList.add('op');
+  document.getElementById(`step-${i}`)?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resetGen() {
+  curLesson=null; openSteps=new Set([0]);
+  show('form',true); show('load',false); show('result',false);
+  document.getElementById('fTitle').value='';
+}
+
+// ── DOCX Export ──────────────────────────────────────────────
+function openExport() {
+  if(!curLesson) return;
+  document.getElementById('ex_school').value  = curLesson.school||'';
+  document.getElementById('ex_teacher').value = curLesson.teacher||'';
+  document.getElementById('expModal').classList.add('op');
+}
+
+function doExport() {
+  if(!curLesson) return;
+  const school  = document.getElementById('ex_school').value  || 'المدرسة الابتدائية';
+  const teacher = document.getElementById('ex_teacher').value || '';
+  const region  = document.getElementById('ex_region').value  || 'تونس';
+  document.getElementById('expModal').classList.remove('op');
+  buildWordDoc(curLesson, school, teacher, region);
+}
+
+function buildWordDoc(les, school, teacher, region) {
+  const d = les.data;
+  const dur = parseInt(les.dur);
+  const SNMS = ['وضعية الانطلاق','الاكتشاف','التعلم المنهجي','الإدماج','التقييم','الدعم','الإثراء'];
+  const SBG  = ['E1F5EE','E6F1FB','EEEDFE','FAEEDA','FAECE7','FBEAF0','EAF3DE'];
+  const STC  = ['085041','042C53','26215C','412402','4A1B0C','4B1528','173404'];
+  const SFRC = [.10,.15,.25,.20,.10,.08,.07];
+
+  const tdStyle = (bg,tc,extra='') =>
+    `border:1px solid #${tc};padding:7px 9px;background:#${bg};color:#${tc};vertical-align:top;text-align:right;${extra}`;
+
+  const metaRows = `
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px;width:13%">المدرسة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px;width:37%">${school}</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px;width:13%">المعلم/ة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px;width:37%">${teacher||'.....................'}</td>
+    </tr>
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المادة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.mat}</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المستوى</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.level}</td>
+    </tr>
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المدة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.dur} دقيقة</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">التاريخ</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.date}</td>
+    </tr>`;
+
+  const compRows = `
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;width:18%;vertical-align:middle">الكفاية المستهدفة</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${d.competency||''}</td>
+    </tr>
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;vertical-align:middle">الأهداف</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${(d.objectives||[]).map(o=>'• '+o).join('<br>')}</td>
+    </tr>
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;vertical-align:middle">الوسائل</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${d.tools||''}</td>
+    </tr>`;
+
+  const stepsRows = d.steps.slice(0,7).map((step,idx)=>{
+    const mins = Math.round(dur*SFRC[idx])+'دق';
+    const tch = (step.teacher||'').replace(/\n/g,'<br>');
+    const std = (step.student||'').replace(/\n/g,'<br>');
+    return `<tr>
+      <td style="${tdStyle(SBG[idx],STC[idx],'text-align:center;font-weight:bold;font-size:10pt;vertical-align:middle')}">${idx+1}<br>${SNMS[idx]}</td>
+      <td style="border:1px solid #ccc;padding:6px 8px;text-align:center;font-size:10pt;vertical-align:middle">${mins}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${tch}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${std}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${step.goal||''}</td>
+    </tr>`;
+  }).join('');
+
+  const evalStep = d.steps[7];
+  const evalHdr = (evalStep?.eval||[]).map((e,j)=>
+    `<th style="${tdStyle(['FAECE7','FAEEDA','EAF3DE'][j],['712B13','633806','27500A'][j],'text-align:center;padding:8px 10px')}">${e.label}</th>`
+  ).join('');
+  const evalBody = (evalStep?.eval||[]).map((e,j)=>
+    `<td style="${tdStyle(['FAECE7','FAEEDA','EAF3DE'][j],['712B13','633806','27500A'][j],'padding:8px 10px')}">${e.items.map(x=>'• '+x).join('<br>')}</td>`
+  ).join('');
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page{size:A4 portrait;margin:2cm 1.8cm}
+  body{font-family:Arial,sans-serif;direction:rtl;font-size:11pt;color:#111;line-height:1.5}
+  table{border-collapse:collapse;width:100%;margin-bottom:12pt}
+  h1{font-size:18pt;color:#085041;text-align:center;margin:10pt 0 4pt;border-bottom:3pt solid #1D9E75;padding-bottom:6pt}
+  h2{font-size:12pt;color:#085041;background:#E1F5EE;padding:5pt 9pt;margin:14pt 0 6pt}
+  .hdr-g{color:#0F6E56;font-weight:bold;font-size:10pt}
+  .center{text-align:center}
+  .italic{font-style:italic;color:#999;font-size:9pt}
+</style>
+</head>
+<body>
+
+<table style="border:none">
+  <tr>
+    <td style="border:none;text-align:right"><span class="hdr-g">الجمهورية التونسية</span><br><span style="font-size:9pt;color:#888">${school} — ${region}</span></td>
+    <td style="border:none;text-align:center"><span style="font-size:20pt;font-weight:bold;color:#1D9E75">EDUGPT</span><br><span style="font-size:9pt;color:#5DCAA5">المساعد البيداغوجي الذكي</span></td>
+    <td style="border:none;text-align:left"><span class="hdr-g">وزارة التربية</span><br><span style="font-size:9pt;color:#888">السنة الدراسية 2025-2026</span></td>
+  </tr>
+</table>
+
+<h1>${les.title}</h1>
+<p class="center" style="color:#666;font-size:10pt;margin-bottom:12pt">جذاذة درس رسمية — ${les.mat} — ${les.level}</p>
+
+<table><tbody>${metaRows}</tbody></table>
+<table><tbody>${compRows}</tbody></table>
+
+<h2>سير الدرس — الخطوات البيداغوجية</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:13%">المرحلة</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:7%">الزمن</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:35%">نشاط المعلم</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:30%">نشاط المتعلم</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:15%">الهدف</th>
+    </tr>
+  </thead>
+  <tbody>${stepsRows}</tbody>
+</table>
+
+<h2>شبكة التقييم — مع1 / مع2 / مع3</h2>
+<table>
+  <thead><tr>${evalHdr}</tr></thead>
+  <tbody><tr>${evalBody}</tr></tbody>
+</table>
+
+<table style="margin-top:20pt">
+  <tr>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:33%;color:#888;font-size:10pt">إمضاء المدير/ة<br><br><br></td>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:34%;color:#888;font-size:10pt">إمضاء المعلم/ة<br><br><br></td>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:33%;color:#888;font-size:10pt">خاتم المؤسسة<br><br><br></td>
+  </tr>
+</table>
+
+<p class="italic center" style="margin-top:14pt">أُنجزت هذه الجذاذة بمساعدة منصة EDUGPT — وزارة التربية التونسية 2025-2026 — ${les.date}</p>
+</body>
+</html>`;
+
+  const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), {
+    href: url,
+    download: `جذاذة_${les.title.replace(/\s+/g,'_')}_${les.level.replace(/\s+/g,'_')}.doc`
+  });
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printL() {
+  if(!curLesson) return;
+  const d = curLesson.data;
+  const w = window.open('','_blank');
+  w.document.write(`<html dir="rtl"><head><title>${curLesson.title}</title>
+  <style>body{font-family:Arial;direction:rtl;padding:2cm;font-size:11pt}
+  h1{font-size:16pt;color:#085041;border-bottom:2px solid #1D9E75;padding-bottom:8px}
+  h2{font-size:12pt;color:#085041;background:#E1F5EE;padding:6px 10px;margin:12px 0 6px}
+  table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 8px}
+  @media print{}</style></head><body>
+  <h1>${curLesson.title}</h1>
+  <p>${curLesson.level} — ${curLesson.mat} — ${curLesson.dur} دق — ${curLesson.school}</p>
+  <h2>الكفاية والأهداف</h2><p>${d.competency}</p>
+  <ul>${(d.objectives||[]).map(o=>'<li>'+o+'</li>').join('')}</ul>
+  <h2>الوسائل</h2><p>${d.tools}</p>
+  <h2>سير الدرس</h2>
+  <table><tr><th>المرحلة</th><th>نشاط المعلم</th><th>نشاط المتعلم</th><th>الهدف</th></tr>
+  ${d.steps.slice(0,7).map((s,i)=>`<tr><td>${['وضعية الانطلاق','الاكتشاف','التعلم المنهجي','الإدماج','التقييم','الدعم','الإثراء'][i]}</td><td>${s.teacher}</td><td>${s.student}</td><td>${s.goal}</td></tr>`).join('')}
+  </table></body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),400);
+}
+
+// ── Library ──
+function saveL() {
+  if(!curLesson) return;
+  LESSONS = JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  if(!LESSONS.find(l=>l.id===curLesson.id)) LESSONS.unshift(curLesson);
+  localStorage.setItem('edugpt3', JSON.stringify(LESSONS.slice(0,50)));
+  const lbl=document.getElementById('saveLbl'); lbl.textContent='تم الحفظ ✓';
+  setTimeout(()=>lbl.textContent='حفظ في المكتبة',2000);
+  updateHome();
+}
+
+function renderLib() {
+  LESSONS = JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  const q   = (document.getElementById('libQ').value||'').toLowerCase();
+  const lv  = document.getElementById('libLv').value;
+  const mat = document.getElementById('libMat').value;
+  const fil = LESSONS.filter(l=>{
+    const mq  = !q  || l.title.toLowerCase().includes(q)||l.mat.includes(q)||l.level.includes(q);
+    const mlv = !lv || l.level===lv;
+    const mm  = !mat|| l.mat===mat;
+    return mq&&mlv&&mm;
+  });
+  const grid = document.getElementById('libGrid');
+  if(!fil.length){ grid.innerHTML='<div class="empty">لا توجد جذاذات محفوظة بعد<br>أنشئ جذاذة وأحفظها من عارض الجذاذة</div>'; return; }
+  const mc2=(m)=>MC[m]||{bg:'#F1EFE8',tc:'#444441'};
+  const lc2=(l)=>LC[l]||{bg:'#E1F5EE',tc:'#085041'};
+  grid.innerHTML=fil.map(l=>`
+    <div class="libcard">
+      <div class="vpills">
+        <span class="vpill" style="background:${lc2(l.level).bg};color:${lc2(l.level).tc};border-color:${lc2(l.level).tc};font-size:10px">${l.level}</span>
+        <span class="vpill" style="background:${mc2(l.mat).bg};color:${mc2(l.mat).tc};border-color:${mc2(l.mat).tc};font-size:10px">${l.mat}</span>
+        <span class="vpill" style="background:#F1EFE8;color:#444;border-color:#ccc;font-size:10px">${l.dur} دق</span>
+      </div>
+      <div class="ltitle">${l.title}</div>
+      <div class="ldate">${l.date} — ${l.school}</div>
+      <div class="lacts">
+        <div class="lact" onclick="openLib(${l.id})" title="فتح"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="lact" onclick="expLib(${l.id})" title="تصدير Word"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="lact" style="border-color:#ffcdd2" onclick="delLib(${l.id})" title="حذف"><svg viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="#e53935" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" stroke="#e53935" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      </div>
+    </div>`).join('');
+}
+
+function openLib(id) {
+  const l=LESSONS.find(x=>x.id===id); if(!l) return;
+  curLesson=l; openSteps=new Set([0]);
+  nav('gen',document.querySelectorAll('.nbtn')[1]);
+  show('form',false); show('load',false); show('result',true);
+  renderResult();
+}
+function expLib(id) { const l=LESSONS.find(x=>x.id===id); if(l) buildWordDoc(l,l.school,l.teacher,'تونس'); }
+function delLib(id) {
+  if(!confirm('حذف هذه الجذاذة نهائياً؟')) return;
+  LESSONS=LESSONS.filter(l=>l.id!==id);
+  localStorage.setItem('edugpt3',JSON.stringify(LESSONS));
+  renderLib(); updateHome();
+}
+
+function updateHome() {
+  LESSONS=JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  const el=document.getElementById('hTotal'); if(el) el.textContent=LESSONS.length;
+}
+updateHome();
+</script>
+</body>
+</html>
