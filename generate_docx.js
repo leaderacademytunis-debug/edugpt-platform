@@ -139,8 +139,8 @@ async function generateLessonDocx(lesson, outPath) {
   const th=(t,w)=>C([P(t,{bold:true,sz:18,col:'FFFFFF',align:AlignmentType.CENTER})],
     {bg:'1D9E75',brd:ab('085041',4),w,va:VerticalAlign.CENTER});
   const stepsHeader=new TableRow({tableHeader:true,children:[
-    th('الهدف',S_GOAL),th('نشاط المتعلم',S_STUD),
-    th('نشاط المعلم',S_TEACH),th('الزمن',S_TIME),th('المرحلة',S_STAGE),
+    th('المرحلة',S_STAGE),th('الزمن',S_TIME),
+    th('نشاط المعلم',S_TEACH),th('نشاط المتعلم',S_STUD),th('الهدف',S_GOAL),
   ]});
   const stepsRows=steps.map((step,idx)=>{
     const m=SM[idx]||SM[6];
@@ -162,16 +162,16 @@ async function generateLessonDocx(lesson, outPath) {
     }
 
     return new TableRow({children:[
-      C(goalContent,{brd:ab('CCCCCC',4),w:S_GOAL}),
-      C(sL,{brd:ab('CCCCCC',4),w:S_STUD}),
-      C(tL,{brd:ab('CCCCCC',4),w:S_TEACH}),
-      C([P(mins,{sz:17,align:AlignmentType.CENTER})],{brd:ab('CCCCCC',4),w:S_TIME,va:VerticalAlign.CENTER}),
       C([P(String(idx+1),{bold:true,sz:22,col:m.tc,align:AlignmentType.CENTER,sa:4}),
          P(m.name,{bold:true,sz:16,col:m.tc,align:AlignmentType.CENTER,sb:4})],
         {bg:m.bg,brd:ab(m.tc,4),w:S_STAGE,va:VerticalAlign.CENTER}),
+      C([P(mins,{sz:17,align:AlignmentType.CENTER})],{brd:ab('CCCCCC',4),w:S_TIME,va:VerticalAlign.CENTER}),
+      C(tL,{brd:ab('CCCCCC',4),w:S_TEACH}),
+      C(sL,{brd:ab('CCCCCC',4),w:S_STUD}),
+      C(goalContent,{brd:ab('CCCCCC',4),w:S_GOAL}),
     ]});
   });
-  const stepsTable=T([stepsHeader,...stepsRows],[S_GOAL,S_STUD,S_TEACH,S_TIME,S_STAGE]);
+  const stepsTable=T([stepsHeader,...stepsRows],[S_STAGE,S_TIME,S_TEACH,S_STUD,S_GOAL]);
 
   // Signature
   const SIG=Math.floor(CW/3);
