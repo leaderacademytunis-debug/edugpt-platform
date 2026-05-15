@@ -348,8 +348,6 @@ async function startGen() {
   if (!title) { const el=document.getElementById('fTitle'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
   show('form',false); show('load',true); show('result',false);
   document.getElementById('pb').style.width = '10%';
-  window._lastSYS = SYS;
-  window._lastUSR = USR;
   animLoad();
 
   const SYS = `أنت EDUGPT — خبير بيداغوجي تونسي متخصص في التعليم الابتدائي.
@@ -417,6 +415,8 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
 المستوى: ${SEL_LV} | المادة: ${SEL_MAT} | المدة: ${SEL_DUR} دقيقة
 تذكر: كل جملة يجب أن تذكر "${title}" أو محتوى فعلياً منه — لا عبارات عامة.`;
 
+  window._lastSYS = SYS;
+  window._lastUSR = USR;
   let data = null;
   try {
     // Try proxy first, then direct API
