@@ -527,7 +527,7 @@ function showKeyDialog(title) {
 
 async function saveKeyAndRetry(title, btn) {
   const key = document.getElementById('keyInput').value.trim();
-  if(!key.startsWith('sk-ant-')) {
+  if(!key || key.length < 10) {
     document.getElementById('keyInput').style.borderColor='#E24B4A';
     return;
   }
