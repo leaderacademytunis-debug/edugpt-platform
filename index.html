@@ -419,17 +419,10 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
   window._lastUSR = USR;
   let data = null;
   try {
-    const storedKey = localStorage.getItem('CLAUDE_KEY') || '';
-    if (!storedKey) { showKeyDialog(title); return; }
-
     const reqBody = { model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] };
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': storedKey,
-        'anthropic-version':'2023-06-01'
-      },
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(reqBody)
     });
     const j = await r.json();
