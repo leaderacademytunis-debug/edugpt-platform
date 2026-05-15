@@ -419,48 +419,35 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
   window._lastUSR = USR;
   let data = null;
   try {
-    // Try proxy first, then direct API
-    const API_URL = '/api/claude';
-    const reqBody = JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] });
+    const storedKey = localStorage.getItem('CLAUDE_KEY') || '';
+    if (!storedKey) { showKeyDialog(title); return; }
 
-    let r = await fetch(API_URL, {
+    const reqBody = { model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] };
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: reqBody
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': storedKey,
+        'anthropic-version':'2023-06-01'
+      },
+      body: JSON.stringify(reqBody)
     });
-
-    // If proxy fails (405/404), try calling Anthropic API directly
-    if(!r.ok && (r.status===405||r.status===404||r.status===500)) {
-      console.warn('Proxy failed with', r.status, '— trying direct API');
-      // Check if we have a key stored in sessionStorage (user can set it)
-      const storedKey = sessionStorage.getItem('CLAUDE_KEY') || localStorage.getItem('CLAUDE_KEY');
-      if(storedKey) {
-        r = await fetch('https://api.anthropic.com/v1/messages', {
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json',
-            'x-api-key': storedKey,
-            'anthropic-version':'2023-06-01'
-          },
-          body: reqBody
-        });
-      } else {
-        throw new Error('PROXY_FAILED_' + r.status);
-      }
-    }
-
     const j = await r.json();
-    if(j.error) throw new Error(JSON.stringify(j.error));
+    if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
     const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     data = JSON.parse(raw);
   } catch(e) {
     console.error('API Error:', e.message);
-    if(e.message && e.message.startsWith('PROXY_FAILED')) {
-      // Show key input dialog
+    if(e.message && e.message.includes('fetch')) {
+      // CORS error - need proxy
       showKeyDialog(title);
       return;
     }
-    data = fallback(title);
+    show('load',false); show('form',false);
+    const area = document.getElementById('resultArea');
+    area.style.display='block';
+    area.innerHTML = '<div style="padding:2rem;text-align:center;direction:rtl;background:var(--white);border:1px solid var(--border);border-radius:11px"><p style="color:#712B13;font-size:14px">⚠️ خطأ: '+e.message+'</p><button onclick="resetGen()" style="margin-top:1rem;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:inherit">رجوع</button></div>';
+    return;
   }
 
   document.getElementById('pb').style.width = '100%';
