@@ -348,6 +348,8 @@ async function startGen() {
   if (!title) { const el=document.getElementById('fTitle'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
   show('form',false); show('load',true); show('result',false);
   document.getElementById('pb').style.width = '10%';
+  window._lastSYS = SYS;
+  window._lastUSR = USR;
   animLoad();
 
   const SYS = `أنت EDUGPT — خبير بيداغوجي تونسي متخصص في التعليم الابتدائي.
@@ -417,23 +419,48 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
 
   let data = null;
   try {
-    const API_URL = window.EDUGPT_API_URL || '/api/claude';
-    const r = await fetch(API_URL, {
+    // Try proxy first, then direct API
+    const API_URL = '/api/claude';
+    const reqBody = JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] });
+
+    let r = await fetch(API_URL, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
+      body: reqBody
     });
+
+    // If proxy fails (405/404), try calling Anthropic API directly
+    if(!r.ok && (r.status===405||r.status===404||r.status===500)) {
+      console.warn('Proxy failed with', r.status, '— trying direct API');
+      // Check if we have a key stored in sessionStorage (user can set it)
+      const storedKey = sessionStorage.getItem('CLAUDE_KEY') || localStorage.getItem('CLAUDE_KEY');
+      if(storedKey) {
+        r = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'x-api-key': storedKey,
+            'anthropic-version':'2023-06-01'
+          },
+          body: reqBody
+        });
+      } else {
+        throw new Error('PROXY_FAILED_' + r.status);
+      }
+    }
+
     const j = await r.json();
+    if(j.error) throw new Error(JSON.stringify(j.error));
     const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
     data = JSON.parse(raw);
   } catch(e) {
-    console.error('API Error:', e);
+    console.error('API Error:', e.message);
+    if(e.message && e.message.startsWith('PROXY_FAILED')) {
+      // Show key input dialog
+      showKeyDialog(title);
+      return;
+    }
     data = fallback(title);
-    // Show error banner
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'background:#FAECE7;border:1px solid #993C1D;border-radius:8px;padding:12px 16px;margin-bottom:12px;color:#712B13;font-size:13px;direction:rtl';
-    errDiv.innerHTML = `<strong>⚠️ خطأ في الاتصال:</strong> ${e.message}<br><small>تأكد من إضافة CLAUDE_API_KEY في Vercel → Settings → Environment Variables</small>`;
-    document.getElementById('resultArea').prepend(errDiv);
   }
 
   document.getElementById('pb').style.width = '100%';
@@ -464,6 +491,82 @@ function animLoad() {
     if(i+1<dots.length){dots[i+1].className='lsdot c';txts[i+1].className='lstxt c';}
     i++;
   }, 1500);
+}
+
+function showKeyDialog(title) {
+  show('load',false);
+  show('form',false);
+  const area = document.getElementById('resultArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:11px;padding:2rem;text-align:center;direction:rtl">
+      <div style="font-size:2rem;margin-bottom:1rem">🔑</div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:.5rem;color:var(--text)">أدخل مفتاح Claude API</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6">
+        الـ proxy على Vercel لا يعمل بعد.<br>
+        أدخل مفتاحك مؤقتاً لاستمرار العمل.
+      </p>
+      <input type="password" id="keyInput" placeholder="sk-ant-api03-..." 
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:1rem;direction:ltr;text-align:left">
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="saveKeyAndRetry('${title.replace(/'/g,"\'")}',this)" 
+          style="background:var(--g);color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+          توليد الجذاذة
+        </button>
+        <button onclick="resetGen()"
+          style="background:var(--white);border:1px solid var(--border);padding:9px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+          رجوع
+        </button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:1rem">
+        المفتاح يُحفظ في المتصفح فقط ولا يُرسَل لأي خادم آخر.
+        <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--g)">احصل على مفتاح مجاني</a>
+      </p>
+    </div>`;
+}
+
+async function saveKeyAndRetry(title, btn) {
+  const key = document.getElementById('keyInput').value.trim();
+  if(!key.startsWith('sk-ant-')) {
+    document.getElementById('keyInput').style.borderColor='#E24B4A';
+    return;
+  }
+  localStorage.setItem('CLAUDE_KEY', key);
+  btn.textContent = 'جاري التوليد...';
+  btn.disabled = true;
+
+  const SYS = document.getElementById('resultArea')._sys || window._lastSYS;
+  const USR = document.getElementById('resultArea')._usr || window._lastUSR;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
+    });
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message);
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const data = JSON.parse(raw);
+    curLesson = {
+      id:Date.now(), title, level:SEL_LV, mat:SEL_MAT, dur:SEL_DUR,
+      date:new Date().toLocaleDateString('ar-TN'),
+      school:document.getElementById('fSchool').value||'المدرسة الابتدائية',
+      teacher:document.getElementById('fTeacher').value||'',
+      data,
+    };
+    show('result',true);
+    renderResult();
+  } catch(e) {
+    btn.textContent = 'توليد الجذاذة';
+    btn.disabled = false;
+    document.getElementById('keyInput').style.borderColor='#E24B4A';
+    document.getElementById('keyInput').placeholder = 'خطأ: ' + e.message;
+  }
 }
 
 function fallback(title) {
