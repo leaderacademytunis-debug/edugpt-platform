@@ -419,7 +419,7 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
   window._lastUSR = USR;
   let data = null;
   try {
-    const reqBody = { model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] };
+    const reqBody = { model:'claude-sonnet-4-5', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] };
     const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -526,7 +526,7 @@ async function saveKeyAndRetry(title, btn) {
         'x-api-key': key,
         'anthropic-version':'2023-06-01'
       },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
     });
     const j = await r.json();
     if(j.error) throw new Error(j.error.message);
