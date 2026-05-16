@@ -167,6 +167,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     <button class="nbtn active" onclick="nav('home',this)">الرئيسية</button>
     <button class="nbtn" onclick="nav('gen',this)">جذاذة جديدة</button>
     <button class="nbtn" onclick="nav('lib',this)">المكتبة</button>
+    <button class="nbtn" onclick="nav('test',this)">اختبار</button>
   </div>
 </div>
 <div class="pbar"><div class="pbar-fill" id="pb"></div></div>
@@ -255,6 +256,85 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     </div>
   </div>
   <div id="resultArea" style="display:none"></div>
+</div>
+
+<!-- TEST GENERATOR -->
+<div class="page" id="page-test">
+  <div id="testFormArea">
+    <div class="card">
+      <div class="card-h">معلومات الاختبار</div>
+      <div class="frow">
+        <div><label class="flabel">المادة *</label>
+          <div class="matgrid" id="testMatGrid">
+            <div class="matbtn on" data-v="استعمال اللغة" onclick="selTestMat(this)"><div class="matdot" style="background:#534AB7"></div><div class="matnm">استعمال اللغة</div></div>
+            <div class="matbtn" data-v="الرياضيات" onclick="selTestMat(this)"><div class="matdot" style="background:#185FA5"></div><div class="matnm">الرياضيات</div></div>
+            <div class="matbtn" data-v="القراءة" onclick="selTestMat(this)"><div class="matdot" style="background:#3B6D11"></div><div class="matnm">القراءة</div></div>
+            <div class="matbtn" data-v="التربية العلمية" onclick="selTestMat(this)"><div class="matdot" style="background:#1D9E75"></div><div class="matnm">التربية العلمية</div></div>
+            <div class="matbtn" data-v="التربية المدنية" onclick="selTestMat(this)"><div class="matdot" style="background:#BA7517"></div><div class="matnm">التربية المدنية</div></div>
+            <div class="matbtn" data-v="التربية الإسلامية" onclick="selTestMat(this)"><div class="matdot" style="background:#D85A30"></div><div class="matnm">التربية الإسلامية</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">المستوى *</label>
+          <div class="lvgrid" id="testLvGrid">
+            <div class="lvbtn" data-v="التحضيري" onclick="selTestLv(this)"><div class="lvcirc" style="background:#EEEDFE;color:#3C3489">ت</div><div class="lvlbl">تحضيري</div></div>
+            <div class="lvbtn" data-v="السنة الأولى" onclick="selTestLv(this)"><div class="lvcirc" style="background:#E6F1FB;color:#0C447C">1</div><div class="lvlbl">سنة 1</div></div>
+            <div class="lvbtn" data-v="السنة الثانية" onclick="selTestLv(this)"><div class="lvcirc" style="background:#EAF3DE;color:#27500A">2</div><div class="lvlbl">سنة 2</div></div>
+            <div class="lvbtn on" data-v="السنة الثالثة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FAEEDA;color:#633806">3</div><div class="lvlbl">سنة 3</div></div>
+            <div class="lvbtn" data-v="السنة الرابعة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FAECE7;color:#712B13">4</div><div class="lvlbl">سنة 4</div></div>
+            <div class="lvbtn" data-v="السنة الخامسة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FBEAF0;color:#72243E">5</div><div class="lvlbl">سنة 5</div></div>
+            <div class="lvbtn" data-v="السنة السادسة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#E1F5EE;color:#085041">6</div><div class="lvlbl">سنة 6</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">الثلاثي</label>
+          <div class="durgrid">
+            <button class="durbtn" onclick="selTrimester(this,'الأول')">الأول</button>
+            <button class="durbtn" onclick="selTrimester(this,'الثاني')">الثاني</button>
+            <button class="durbtn on" onclick="selTrimester(this,'الثالث')">الثالث</button>
+          </div>
+        </div>
+        <div><label class="flabel">رقم الاختبار</label>
+          <div class="durgrid">
+            <button class="durbtn on" onclick="selTestNum(this,'1')">1</button>
+            <button class="durbtn" onclick="selTestNum(this,'2')">2</button>
+            <button class="durbtn" onclick="selTestNum(this,'3')">3</button>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">المدرسة</label><input class="finput" id="tSchool" placeholder="المدرسة الابتدائية..."></div>
+        <div><label class="flabel">الدائرة</label><input class="finput" id="tRegion" placeholder="تونس 1..."></div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">الدروس المقررة للاختبار</label>
+          <input class="finput" id="tLessons" placeholder="مثال: المضارع، الحال، المفعول فيه، الإنشاء الموجّه"></div>
+        <div><label class="flabel">المدة</label>
+          <div class="durgrid">
+            <button class="durbtn" onclick="selDurT(this,'45 دق')">45 دق</button>
+            <button class="durbtn on" onclick="selDurT(this,'60 دق')">60 دق</button>
+            <button class="durbtn" onclick="selDurT(this,'90 دق')">90 دق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="genbtn" onclick="startTest()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
+      توليد الاختبار
+    </button>
+  </div>
+
+  <div id="testLoadArea" style="display:none">
+    <div class="loadbox">
+      <div class="spin"></div>
+      <div style="font-size:14px;font-weight:600">جاري توليد الاختبار...</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">EDUGPT يبني الوضعيات والتعليمات وفق النموذج الرسمي</div>
+    </div>
+  </div>
+
+  <div id="testResultArea" style="display:none"></div>
 </div>
 
 <!-- LIBRARY -->
@@ -903,6 +983,278 @@ function updateHome() {
   LESSONS=JSON.parse(localStorage.getItem('edugpt3')||'[]');
   const el=document.getElementById('hTotal'); if(el) el.textContent=LESSONS.length;
 }
+
+// ══════════════════════════════════════════
+// TEST GENERATOR
+// ══════════════════════════════════════════
+let TEST_MAT = 'استعمال اللغة';
+let TEST_LV  = 'السنة الثالثة';
+let TEST_TRIM = 'الثالث';
+let TEST_NUM  = '1';
+let TEST_DUR  = '60 دق';
+
+function selTestMat(el){ document.querySelectorAll('#testMatGrid .matbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_MAT=el.dataset.v; }
+function selTestLv(el) { document.querySelectorAll('#testLvGrid .lvbtn').forEach(b=>b.classList.remove('on'));  el.classList.add('on'); TEST_LV=el.dataset.v;  }
+function selTrimester(el,v){ document.querySelectorAll('#testFormArea .durgrid').item(0).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_TRIM=v; }
+function selTestNum(el,v)  { document.querySelectorAll('#testFormArea .durgrid').item(1).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_NUM=v;  }
+function selDurT(el,v)     { document.querySelectorAll('#testFormArea .durgrid').item(2).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_DUR=v;  }
+
+async function startTest() {
+  const lessons = document.getElementById('tLessons').value.trim();
+  if(!lessons){ const el=document.getElementById('tLessons'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
+  const school = document.getElementById('tSchool').value || 'المدرسة الابتدائية';
+  const region = document.getElementById('tRegion').value || '';
+
+  document.getElementById('testFormArea').style.display='none';
+  document.getElementById('testLoadArea').style.display='block';
+  document.getElementById('testResultArea').style.display='none';
+
+  const SYS_T = `أنت EDUGPT — خبير في بناء الاختبارات التونسية الرسمية للمرحلة الابتدائية.
+أجب بـ JSON فقط بدون أي نص خارجه.
+بنِ اختباراً وفق النموذج الرسمي لوزارة التربية: وضعيّتان أو ثلاث، كل وضعيّة تحتوي سنداً وتعليمات متدرجة.
+المعايير: مع1 (الملاءمة) مع2 (الانسجام) مع3 (الثراء).
+{"school":"...","region":"...","situations":[
+  {"title":"الوضعيّة 1","support":"نص أو سند الوضعية","instructions":[
+    {"num":1,"text":"نص التعليمة الأولى","lines":2},
+    {"num":2,"text":"نص التعليمة الثانية","lines":3}
+  ],"criteria":"مع1"},
+  {"title":"الوضعيّة 2","support":"...","instructions":[...],"criteria":"مع2","isProduction":true,"productionText":"نص تعليمة الإنتاج","productionLines":7}
+],"evalCriteria":["مع1 — الملاءمة","مع2 — الانسجام","مع3 — الثراء"]}`;
+
+  const USR_T = `أنشئ اختبار ${TEST_TRIM} في ${TEST_MAT} للـ${TEST_LV}.
+الدروس: ${lessons}. المدة: ${TEST_DUR}.
+بنِ وضعيّات حقيقية ومحددة تتضمن نصوصاً أصيلة وتعليمات واضحة ومتدرجة من مع1 إلى مع3.`;
+
+  let testData = null;
+  try {
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2500,system:SYS_T,messages:[{role:'user',content:USR_T}]})
+    });
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    testData = JSON.parse(raw);
+  } catch(e) {
+    console.error('Test API error:', e.message);
+    testData = buildTestFallback(lessons);
+  }
+
+  document.getElementById('testLoadArea').style.display='none';
+  document.getElementById('testResultArea').style.display='block';
+  renderTestResult(testData, school, region, lessons);
+}
+
+function buildTestFallback(lessons) {
+  return {
+    situations:[
+      {title:'الوضعيّة 1',support:'نص لقراءة التلميذ',
+       instructions:[{num:1,text:'أجب عن السؤال الأول المتعلق بـ: '+lessons,lines:2},{num:2,text:'أجب عن السؤال الثاني',lines:3}],
+       criteria:'مع1'},
+      {title:'الوضعيّة 2',support:'',
+       instructions:[{num:1,text:'أجب عن السؤال المتعلق بـ: '+lessons,lines:3}],
+       criteria:'مع2',isProduction:true,productionText:'أنتج نصاً قصيراً (5 أسطر) موظفاً: '+lessons,productionLines:6},
+    ],
+    evalCriteria:['مع1 — الملاءمة','مع2 — الانسجام','مع3 — الثراء']
+  };
+}
+
+function renderTestResult(data, school, region, lessons) {
+  const area = document.getElementById('testResultArea');
+  const sitsHtml = (data.situations||[]).map((sit,i)=>{
+    const instrHtml = (sit.instructions||[]).map(instr=>`
+      <p style="margin:.4rem 0;font-size:13px"><strong>${instr.num}/</strong> ${instr.text}</p>
+      ${Array(instr.lines||2).fill('<div style="border-bottom:1px dashed #ccc;margin:.3rem 0;height:22px"></div>').join('')}
+    `).join('');
+    const prodHtml = sit.isProduction ? `
+      <p style="margin:.6rem 0;font-size:13px;font-weight:600;color:#185FA5">${sit.productionText||''}</p>
+      ${Array(sit.productionLines||6).fill('<div style="border-bottom:1px dashed #ccc;margin:.3rem 0;height:22px"></div>').join('')}
+    ` : '';
+    return `
+    <tr>
+      <td style="border:1px solid #ccc;padding:8px;text-align:center;font-size:12px;vertical-align:middle;background:#F9F9F9;width:14%">
+        <strong>${data.evalCriteria?.[i]||'مع'+(i+1)}</strong>
+      </td>
+      <td style="border:1px solid #ccc;padding:10px;direction:rtl;vertical-align:top">
+        ${sit.title ? `<p style="font-weight:700;font-size:14px;margin-bottom:.5rem">${sit.title}</p>` : ''}
+        ${sit.support ? `<div style="background:#F5F5F0;padding:8px;border-radius:6px;font-size:13px;margin-bottom:.6rem;line-height:1.7">${sit.support}</div>` : ''}
+        ${instrHtml}
+        ${prodHtml}
+      </td>
+      <td style="border:1px solid #ccc;padding:8px;text-align:center;width:10%"></td>
+    </tr>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden">
+      <!-- Header info -->
+      <div style="background:#F0F4F8;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);direction:rtl">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <span style="font-size:15px;font-weight:700">${TEST_MAT} — ${TEST_LV}</span>
+            <span style="font-size:12px;color:var(--muted);margin-right:8px">الثلاثي ${TEST_TRIM} — اختبار ${TEST_NUM} — ${TEST_DUR}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${school} ${region?'— '+region:''}</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">الدروس: ${lessons}</div>
+      </div>
+
+      <!-- Test table -->
+      <div style="padding:1rem;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;direction:rtl">
+          <thead>
+            <tr>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px;width:14%">المعايير</th>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px">${TEST_MAT.includes('رياض')?'الأنشطة':'الوضعيّات'}</th>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px;width:10%">النقاط</th>
+            </tr>
+          </thead>
+          <tbody>${sitsHtml}</tbody>
+        </table>
+      </div>
+
+      <!-- Grading table -->
+      <div style="padding:0 1rem 1rem">
+        <p style="font-weight:700;font-size:13px;text-align:center;margin:.75rem 0;direction:rtl">جدول إسناد الأعداد</p>
+        <table style="width:100%;border-collapse:collapse;direction:rtl">
+          <tr>
+            ${['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+              .map(h=>`<th style="border:1px solid #ccc;padding:6px;background:#EEE;font-size:11px;text-align:center">${h}</th>`).join('')}
+          </tr>
+          <tr>
+            ${Array(8).fill('<td style="border:1px solid #ccc;padding:14px;text-align:center"></td>').join('')}
+          </tr>
+        </table>
+      </div>
+
+      <!-- Actions -->
+      <div style="border-top:1px solid var(--border);padding:.85rem 1.25rem;display:flex;gap:8px;flex-wrap:wrap;background:var(--bg)">
+        <button class="abtn green" onclick="exportTestWord('${lessons.replace(/'/g,"\'")}')">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" stroke="white" stroke-width="1.5"/></svg>
+          تصدير Word
+        </button>
+        <button class="abtn" onclick="printTest()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          طباعة
+        </button>
+        <button class="abtn" onclick="resetTest()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          اختبار جديد
+        </button>
+      </div>
+    </div>`;
+
+  // Store test data for export
+  window._lastTestData = data;
+  window._lastTestMeta = {school, region, lessons};
+}
+
+function exportTestWord(lessons) {
+  const data = window._lastTestData;
+  if(!data) return;
+  const meta = window._lastTestMeta||{};
+  const colLabel = TEST_MAT.includes('رياض') ? 'الأنشطة' : 'الوضعيّات';
+
+  const sitsRows = (data.situations||[]).map((sit,i)=>{
+    let actHtml = '';
+    if(sit.title) actHtml += `<p style="font-weight:bold;font-size:12pt;margin-bottom:6pt">${sit.title}</p>`;
+    if(sit.support) actHtml += `<div style="background:#F5F5F0;padding:6pt;margin-bottom:6pt;font-size:11pt;line-height:1.7">${sit.support}</div>`;
+    (sit.instructions||[]).forEach(instr=>{
+      actHtml += `<p style="font-size:11pt;margin:4pt 0"><strong>${instr.num}/</strong> ${instr.text}</p>`;
+      for(let l=0;l<(instr.lines||2);l++) actHtml += `<p style="border-bottom:1px solid #ccc;margin:3pt 0;min-height:18pt">&nbsp;</p>`;
+    });
+    if(sit.isProduction){
+      actHtml += `<p style="font-weight:bold;font-size:11pt;color:#185FA5;margin-top:8pt">${sit.productionText||''}</p>`;
+      for(let l=0;l<(sit.productionLines||6);l++) actHtml += `<p style="border-bottom:1px solid #ccc;margin:3pt 0;min-height:18pt">&nbsp;</p>`;
+    }
+    return `<tr>
+      <td style="border:1px solid #000;padding:6pt;text-align:center;font-size:10pt;background:#F9F9F9;vertical-align:middle"><strong>${data.evalCriteria?.[i]||'مع'+(i+1)}</strong></td>
+      <td style="border:1px solid #000;padding:8pt;direction:rtl;vertical-align:top">${actHtml}</td>
+      <td style="border:1px solid #000;padding:6pt;text-align:center"></td>
+    </tr>`;
+  }).join('');
+
+  const gradingRow = ['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+    .map(h=>`<td style="border:1px solid #ccc;padding:16pt 4pt;text-align:center;font-size:9pt">&nbsp;</td>`).join('');
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<style>
+  @page{size:A4;margin:1.8cm 1.5cm}
+  body{font-family:Arial,sans-serif;direction:rtl;font-size:11pt;color:#111}
+  table{border-collapse:collapse;width:100%}
+  .hdr-tbl td{border:2px solid #000;padding:6pt 8pt;vertical-align:middle}
+</style></head><body>
+<table class="hdr-tbl"><tr>
+  <td style="width:32%;text-align:right">
+    <strong>الجمهوريّة التونسيّة<br>وزارة التّربية</strong><br>
+    الدائرة: ${meta.region||region}<br>
+    المدرسة: ${meta.school||''}<br>
+    السنة الدراسيّة: 2025-2026
+  </td>
+  <td style="width:36%;text-align:center">
+    <strong style="font-size:13pt">اختبار الثلاثي ${TEST_TRIM}<br>في ${TEST_MAT}<br>الاختبار عدد ${TEST_NUM}</strong><br>
+    المدّة: ${TEST_DUR}
+  </td>
+  <td style="width:32%;text-align:right">
+    القسم: ${TEST_LV}<br>
+    الاسم: ..............................<br>
+    اللقب: ..............................<br>
+    التاريخ: ..............................
+  </td>
+</tr></table>
+<br>
+<table>
+  <thead><tr>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;width:16%;text-align:center">المعايير</th>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;text-align:center">${colLabel}</th>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;width:10%;text-align:center">النقاط</th>
+  </tr></thead>
+  <tbody>${sitsRows}</tbody>
+</table>
+<br>
+<p style="font-weight:bold;text-align:center;font-size:12pt">جدول إسناد الأعداد</p>
+<table>
+  <tr>${['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+    .map(h=>`<th style="border:1px solid #ccc;padding:5pt;background:#EEE;font-size:9pt;text-align:center">${h}</th>`).join('')}</tr>
+  <tr>${gradingRow}</tr>
+</table>
+<br>
+<p style="border-top:1px solid #000;padding-top:6pt;font-size:9pt;text-align:center">
+  المعلم/ة: ..............................&nbsp;&nbsp;&nbsp;&nbsp;
+  المدير/ة: ..............................&nbsp;&nbsp;&nbsp;&nbsp;
+  الصفحة 1
+</p>
+</body></html>`;
+
+  const blob = new Blob(['﻿'+html],{type:'application/msword;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),{
+    href:url, download:`اختبار_${TEST_MAT}_${TEST_LV}_ث${TEST_NUM}.doc`
+  });
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printTest() {
+  const area = document.getElementById('testResultArea');
+  const w = window.open('','_blank');
+  w.document.write(`<html dir="rtl"><head><title>اختبار</title>
+  <style>body{font-family:Arial;direction:rtl;padding:1.5cm;font-size:11pt}
+  table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:7px}
+  @media print{}</style></head><body>${area.innerHTML}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),400);
+}
+
+function resetTest() {
+  document.getElementById('testFormArea').style.display='block';
+  document.getElementById('testLoadArea').style.display='none';
+  document.getElementById('testResultArea').style.display='none';
+}
+
 updateHome();
 </script>
 </body>
