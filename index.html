@@ -419,7 +419,7 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
   window._lastUSR = USR;
   let data = null;
   try {
-    const reqBody = { model:'claude-sonnet-4-5', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] };
+    const reqBody = { model:'claude-sonnet-4-5', max_tokens:4000, system:SYS, messages:[{role:'user',content:USR}] };
     const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -428,7 +428,26 @@ JSON المطلوب — 7 خطوات + شبكة تقييم:
     const j = await r.json();
     if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
     const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-    data = JSON.parse(raw);
+    // Try to extract valid JSON if truncated
+    let jsonStr = raw;
+    try {
+      data = JSON.parse(jsonStr);
+    } catch(parseErr) {
+      // Try to fix truncated JSON by finding last complete step
+      const lastBrace = jsonStr.lastIndexOf(']}');
+      if(lastBrace > 0) {
+        jsonStr = jsonStr.substring(0, lastBrace+2) + ']}';
+        try { data = JSON.parse(jsonStr); }
+        catch(e2) {
+          // Force close the JSON
+          jsonStr = jsonStr.replace(/,\s*$/, '') + ']}';
+          try { data = JSON.parse(jsonStr); }
+          catch(e3) { throw new Error('JSON invalide — augmentez max_tokens'); }
+        }
+      } else {
+        throw parseErr;
+      }
+    }
   } catch(e) {
     console.error('API Error:', e.message);
     if(e.message && e.message.includes('fetch')) {
@@ -526,7 +545,7 @@ async function saveKeyAndRetry(title, btn) {
         'x-api-key': key,
         'anthropic-version':'2023-06-01'
       },
-      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:2000, system:SYS, messages:[{role:'user',content:USR}] })
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:4000, system:SYS, messages:[{role:'user',content:USR}] })
     });
     const j = await r.json();
     if(j.error) throw new Error(j.error.message);
