@@ -154,9 +154,9 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .epanel{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;flex-direction:column;gap:.65rem}
 .epanel-hdr{font-size:12px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:5px}
 .epanel-hdr.gold{color:#CA8A04}
-.cmd-ta{width:100%;min-height:170px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;resize:vertical;outline:none;line-height:1.7;transition:border .13s}
+.cmd-ta{width:100%;min-height:170px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;text-align:right;resize:vertical;outline:none;line-height:1.7;transition:border .13s}
 .cmd-ta:focus{border-color:#7C3AED}
-.cmd-ta.res{background:var(--bg);border-style:dashed;resize:none}
+.cmd-ta.res{background:var(--bg);border-style:dashed;resize:none;direction:rtl;text-align:right;unicode-bidi:bidi-override}
 .enh-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:var(--muted);min-height:170px;text-align:center}
 .enh-empty i{font-size:32px;opacity:.35}
 .enh-empty p{font-size:11px}
@@ -1440,18 +1440,20 @@ async function enhanceCmd() {
 ممنوع في الناتج: "يلاحظ الأمثلة" / "يشارك شفهياً" / "يستنتج القاعدة" / "يُنجز فردياً"
 مطلوب: كل جملة تذكر اسم الدرس أو محتواه الفعلي بالأرقام والأمثلة.
 
-أجب بالـ prompt المحسّن الكامل فقط بدون مقدمة أو تفسير.`;
+أجب بالـ prompt المحسّن فقط بدون مقدمة أو تفسير.
+هام جداً: اجعل كل عنصر من العناصر السبعة في 2-3 أسطر فقط. لا تطوّل.`;
 
   const USR_MSG = `حوّل هذا الأمر البسيط إلى prompt احترافي كامل بالهيكل السبعي:
 
 "${raw}"
 
-بنِ الـ prompt بالعناصر السبعة: Role + Context + Task + Format + Constraints + Example + Verification`;
+بنِ الـ prompt بالعناصر السبعة: Role + Context + Task + Format + Constraints + Example + Verification.
+كل عنصر في سطرين فقط. موجز ومركّز.`;
 
   try {
     const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:SYS,
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,system:SYS,
         messages:[{role:'user',content:USR_MSG}]})
     });
     const j=await r.json();
@@ -1509,7 +1511,7 @@ ${verify}`;
 
 function showEnhanced(text){
   document.getElementById('enhResult').innerHTML=`
-    <textarea class="cmd-ta res" readonly rows="6">${text}</textarea>
+    <textarea class="cmd-ta res" readonly rows="6" dir="rtl" style="direction:rtl;text-align:right;unicode-bidi:embed">${text}</textarea>
     <div class="res-acts">
       <button class="ract" onclick="copyEnh(this,'${text.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
         <i class="ti ti-copy"></i> نسخ
