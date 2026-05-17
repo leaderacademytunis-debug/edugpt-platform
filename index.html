@@ -143,6 +143,52 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .lact svg{width:12px;height:12px;color:var(--muted)}
 .empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:13px}
 
+.tabs-bar{display:flex;border-bottom:1px solid var(--border);background:var(--white);overflow-x:auto}
+.ctab{flex:1;min-width:90px;padding:.6rem .5rem;font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;border:none;border-bottom:2px solid transparent;background:none;font-family:inherit;white-space:nowrap;transition:all .13s}
+.ctab:hover{color:var(--text);background:var(--bg)}
+.ctab.on{color:#7C3AED;border-bottom-color:#7C3AED;font-weight:500}
+.ctab i{font-size:13px}
+.ctab-content{display:none;padding:1rem}
+.ctab-content.on{display:block}
+.enh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.epanel{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;flex-direction:column;gap:.65rem}
+.epanel-hdr{font-size:12px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:5px}
+.epanel-hdr.gold{color:#CA8A04}
+.cmd-ta{width:100%;min-height:170px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;resize:vertical;outline:none;line-height:1.7;transition:border .13s}
+.cmd-ta:focus{border-color:#7C3AED}
+.cmd-ta.res{background:var(--bg);border-style:dashed;resize:none}
+.enh-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:var(--muted);min-height:170px;text-align:center}
+.enh-empty i{font-size:32px;opacity:.35}
+.enh-empty p{font-size:11px}
+.enh-btn{width:100%;padding:.65rem;border-radius:8px;border:none;background:#7C3AED;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:opacity .13s}
+.enh-btn:hover{opacity:.88}
+.enh-btn:disabled{opacity:.45;cursor:not-allowed}
+.res-acts{display:flex;gap:5px;margin-top:.25rem}
+.ract{flex:1;padding:6px;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .12s}
+.ract:hover{border-color:var(--g);color:var(--gd)}
+.exg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.exc{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem;cursor:pointer;transition:all .12s}
+.exc:hover{border-color:#7C3AED}
+.exc-b{font-size:11px;color:var(--muted);margin-bottom:.3rem}
+.exc-arr{font-size:10px;color:#7C3AED;margin:.25rem 0}
+.exc-a{font-size:11px;color:var(--text);font-weight:500}
+.lib-srch{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;direction:rtl;outline:none;margin-bottom:.75rem;background:var(--white);color:var(--text)}
+.libg{display:flex;flex-direction:column;gap:6px}
+.libi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;display:flex;align-items:flex-start;gap:8px;cursor:pointer;transition:all .12s}
+.libi:hover{border-color:#7C3AED}
+.ltag{font-size:10px;padding:2px 7px;border-radius:10px;background:#EDE9FE;color:#7C3AED;font-weight:500;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.lbody{flex:1}
+.ltitle{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.lprev{font-size:11px;color:var(--muted)}
+.tips-l{display:flex;flex-direction:column;gap:7px}
+.tipi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;display:flex;gap:9px}
+.tipn{width:20px;height:20px;border-radius:50%;background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tiptxt h4{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.tiptxt p{font-size:11px;color:var(--muted);line-height:1.55}
+.espin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.enh-btn.loading .espin{display:block}
+.enh-btn.loading .elbl{display:none}
+@media(max-width:580px){.enh-grid,.exg{grid-template-columns:1fr}}
 @media(max-width:580px){
   .kpi-row,.frow{grid-template-columns:repeat(2,1fr)}
   .lvgrid{grid-template-columns:repeat(4,1fr)}
@@ -168,7 +214,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     <button class="nbtn" onclick="nav('gen',this)">جذاذة جديدة</button>
     <button class="nbtn" onclick="nav('lib',this)">المكتبة</button>
     <button class="nbtn" onclick="nav('test',this)">اختبار</button>
-    <button class="nbtn" onclick="nav('commands',this)">⚡ أوامر</button>
+    <button class="nbtn" onclick="nav('cmds',this)">⚡ أوامر</button>
   </div>
 </div>
 <div class="pbar"><div class="pbar-fill" id="pb"></div></div>
@@ -182,7 +228,6 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     <div class="hero-btns">
       <button class="btn-g" onclick="nav('gen',document.querySelectorAll('.nbtn')[1])">✦ ابدأ إنشاء جذاذة</button>
       <button class="btn-w" onclick="nav('lib',document.querySelectorAll('.nbtn')[2])">مكتبة الجذاذات</button>
-        <button class="btn-w" onclick="nav('test',document.querySelectorAll('.nbtn')[2])">انشئ لختبار </button>
     </div>
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-n" id="hTotal">0</div><div class="kpi-l">جذاذة محفوظة</div></div>
@@ -337,6 +382,71 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
   </div>
 
   <div id="testResultArea" style="display:none"></div>
+</div>
+
+<!-- COMMANDS ENHANCER -->
+<div class="page" id="page-cmds">
+  <div class="tabs-bar">
+    <button class="ctab on" onclick="showCTab('enh',this)"><i class="ti ti-wand"></i> محسّن الأوامر</button>
+    <button class="ctab" onclick="showCTab('tpl',this)"><i class="ti ti-layout-grid"></i> قوالب</button>
+    <button class="ctab" onclick="showCTab('lib2',this)"><i class="ti ti-books"></i> المكتبة</button>
+    <button class="ctab" onclick="showCTab('tips',this)"><i class="ti ti-bulb"></i> نصائح</button>
+  </div>
+
+  <!-- ENHANCER -->
+  <div class="ctab-content on" id="ctab-enh">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">محسّن الأوامر الذكي</div>
+      <div style="font-size:12px;color:var(--muted)">اكتب أمراً بسيطاً وسيحوّله الذكاء الاصطناعي إلى أمر احترافي</div>
+    </div>
+    <div class="enh-grid">
+      <div class="epanel">
+        <div class="epanel-hdr"><i class="ti ti-pencil"></i> قبل التحسين</div>
+        <textarea class="cmd-ta" id="rawCmd" placeholder="اكتب أمرك البسيط...&#10;&#10;مثال:&#10;اعمل جذاذة رياضيات سنة 4&#10;اكتب اختبار لغة عربية&#10;اصنع فيديو عن الكسور"></textarea>
+        <button class="enh-btn" id="enhBtn" onclick="enhanceCmd()">
+          <div class="espin" id="espin"></div>
+          <span class="elbl"><i class="ti ti-wand"></i> تحسين الأمر</span>
+        </button>
+      </div>
+      <div class="epanel">
+        <div class="epanel-hdr gold"><i class="ti ti-sparkles"></i> بعد التحسين</div>
+        <div id="enhResult">
+          <div class="enh-empty">
+            <i class="ti ti-wand"></i>
+            <p>اكتب أمراً بسيطاً<br>وسيحوّله الذكاء الاصطناعي<br>إلى أمر احترافي</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="ctab-content" id="ctab-tpl">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">قوالب جاهزة</div>
+      <div style="font-size:12px;color:var(--muted)">اضغط على مثال لتحميله وتحسينه</div>
+    </div>
+    <div class="exg" id="exGrid"></div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="ctab-content" id="ctab-lib2">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">مكتبة الأوامر المحسّنة</div>
+      <div style="font-size:12px;color:var(--muted)">أوامر احترافية جاهزة للاستخدام</div>
+    </div>
+    <input class="lib-srch" type="text" placeholder="ابحث في المكتبة..." oninput="filterLib2(this.value)">
+    <div class="libg" id="libGrid2"></div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="ctab-content" id="ctab-tips">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">أسرار ونصائح</div>
+      <div style="font-size:12px;color:var(--muted)">كيف تكتب أوامر فعّالة لـ EDUGPT</div>
+    </div>
+    <div class="tips-l" id="tipsList"></div>
+  </div>
 </div>
 
 <!-- LIBRARY -->
@@ -1256,6 +1366,157 @@ function resetTest() {
   document.getElementById('testLoadArea').style.display='none';
   document.getElementById('testResultArea').style.display='none';
 }
+
+
+// ══════════════════════════════════════
+// COMMANDS ENHANCER
+// ══════════════════════════════════════
+const CMD_EXAMPLES = [
+  {before:'اعمل جذاذة رياضيات سنة 4',after:'أنشئ جذاذة درس كاملة في الرياضيات للسنة الرابعة وفق المنهج التونسي 2025-2026 بالهيكل الثماني الرسمي مع أهداف وكفايات ووسائل وزمن لكل خطوة'},
+  {before:'اكتب اختبار لغة عربية',after:'صمّم اختباراً محروساً في اللغة العربية وفق النموذج الرسمي لوزارة التربية يتضمن وضعيتين بسند نصي وتعليمات متدرجة من مع1 إلى مع3 وجدول إسناد الأعداد'},
+  {before:'اصنع فيديو عن الكسور',after:'اكتب سكريبت فيديو تعليمي (3 دقائق) عن الكسور العادية للسنة الخامسة: hook جذاب، شرح بأمثلة حياتية، تمرين تفاعلي، خلاصة'},
+  {before:'اكتب منشور عن EDUGPT',after:'اكتب منشور LinkedIn احترافي عن EDUGPT بأسلوب قصصي مع hook قوية وcall-to-action و3 هاشتاق — 150 كلمة'},
+];
+
+const CMD_LIBRARY = [
+  {tag:'جذاذة',title:'جذاذة درس متكاملة',prev:'أنشئ جذاذة درس كاملة في [المادة] للسنة [X] وفق المنهج التونسي...',
+   full:'أنشئ جذاذة درس كاملة في [المادة] للسنة [X] وفق المنهج التونسي 2025-2026 بالهيكل الثماني: وضعية الانطلاق، الاكتشاف، التعلم المنهجي، الإدماج، التقييم، الدعم، الإثراء. اذكر الأهداف والكفايات والوسائل والزمن لكل خطوة مع محتوى خاص بدرس "[عنوان الدرس]".'},
+  {tag:'اختبار',title:'فرض محروس رسمي',prev:'صمّم اختباراً محروساً في [المادة] وفق النموذج الرسمي...',
+   full:'صمّم اختباراً محروساً في [المادة] للسنة [X] وفق النموذج الرسمي لوزارة التربية: ترويسة رسمية، وضعيتين بسندات أصيلة، تعليمات متدرجة من مع1 إلى مع3، جدول إسناد الأعداد. المدة: [X] دقيقة.'},
+  {tag:'شبكة تقييم',title:'شبكة معايير التقييم',prev:'أنشئ شبكة تقييم لدرس [X] بمعايير مع1/مع2/مع3...',
+   full:'أنشئ شبكة تقييم لدرس "[عنوان الدرس]" للسنة [X] تتضمن: مع1 (الملاءمة) مع 3 مؤشرات، مع2 (الانسجام) مع 3 مؤشرات، مع3 (الثراء) مع 3 مؤشرات. لكل مؤشر: الأداء المتوقع وطريقة التحقق.'},
+  {tag:'خطة فصلية',title:'التوزيع السنوي الفصلي',prev:'أنشئ خطة فصلية لمادة [X] موزّعة على 13 أسبوعاً...',
+   full:'أنشئ خطة فصلية لمادة [المادة] للسنة [X] موزّعة على 13 أسبوعاً تتضمن: الوحدات والدروس، الحصص المخصصة، أسبوع المراجعة، أسبوع التقييم. وفق التوزيع الرسمي لوزارة التربية التونسية.'},
+  {tag:'LinkedIn',title:'منشور LinkedIn تعليمي',prev:'اكتب منشور LinkedIn بأسلوب قصصي عن [الموضوع]...',
+   full:'اكتب منشور LinkedIn احترافي بأسلوب قصصي يبدأ بـ hook قوية حول [الموضوع]. يتضمن: قصة واقعية، 3 نقاط رئيسية، call-to-action، 3 هاشتاق. اللغة: عربية مبسطة. 150-250 كلمة.'},
+  {tag:'hook',title:'5 جمل افتتاحية',prev:'اكتب 5 hook مختلفة لمحتوى عن [موضوع]...',
+   full:'اكتب 5 جمل افتتاحية متنوعة (سؤال مثير، إحصائية، قصة، تحدي، اقتباس) لمحتوى حول [الموضوع]. كل hook جملة أو جملتان تشدّ الانتباه فوراً.'},
+  {tag:'وضعية',title:'وضعية إدماجية',prev:'أنشئ وضعية إدماجية للسنة [X] تجمع دروس...',
+   full:'أنشئ وضعية إدماجية للسنة [X] تجمع: [الدروس] في سياق حياتي مألوف. تتضمن: سند نصي، 3 تعليمات من مع1 إلى مع3، تعليمة إنتاج. الكفاية المستهدفة: [الكفاية].'},
+  {tag:'دعم وإثراء',title:'أنشطة دعم وإثراء',prev:'أنشئ أنشطة دعم للمتعثرين وإثراء للمتقدمين...',
+   full:'أنشئ لدرس "[الدرس]" للسنة [X]: 3 أنشطة دعم مبسّطة ومتدرجة للمتعثرين، 3 أنشطة إثراء تتحدى المتقدمين. كل نشاط مع تعليمة واضحة ووسيلة مناسبة.'},
+];
+
+const CMD_TIPS = [
+  {t:'كن محدداً في المادة والمستوى',p:'بدل "اعمل جذاذة" قل "أنشئ جذاذة رياضيات للسنة الرابعة درس الكسور العادية"'},
+  {t:'اذكر عنوان الدرس الفعلي',p:'بدل "درس في اللغة" قل "درس النعت والمنعوت". الدقة تُحسّن الجودة كثيراً.'},
+  {t:'حدّد النموذج المطلوب',p:'قل "وفق النموذج الرسمي التونسي" أو "بالهيكل الثماني" للحصول على نتيجة متوافقة.'},
+  {t:'أضف السياق',p:'مثال: "مدة 45 دقيقة" أو "الثلاثي الثالث" أو "لتلاميذ المناطق الريفية"'},
+  {t:'استخدم الأوامر المحسّنة مباشرة',p:'انسخ الأمر المحسّن والصقه في حقل الجذاذة أو الاختبار مباشرة.'},
+  {t:'جرّب الإعادة مع تفصيل أكثر',p:'إذا لم تُعجبك النتيجة، أضف تفصيلاً أكثر في الأمر الأصلي واضغط تحسين مجدداً.'},
+];
+
+function showCTab(id, btn) {
+  document.querySelectorAll('.ctab-content').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ctab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+async function enhanceCmd() {
+  const raw = document.getElementById('rawCmd').value.trim();
+  if(!raw){ const el=document.getElementById('rawCmd'); el.style.borderColor='#7C3AED'; setTimeout(()=>el.style.borderColor='',1500); return; }
+  const btn=document.getElementById('enhBtn');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  const SYS=`أنت خبير في كتابة الأوامر الاحترافية لمنصة EDUGPT التعليمية التونسية.
+حوّل الأمر البسيط إلى أمر احترافي محدد وفعّال: احتفظ بالهدف الأصلي، أضف المادة والمستوى والنموذج الرسمي التونسي إذا كان تعليمياً، اجعله قابلاً للتنفيذ مباشرة. لا تزد عن 80 كلمة. أجب بالأمر المحسّن فقط.`;
+
+  try {
+    const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,system:SYS,
+        messages:[{role:'user',content:'حسّن هذا الأمر: '+raw}]})
+    });
+    const j=await r.json();
+    const txt=(j.content||[]).map(b=>b.text||'').join('').trim()||localEnhance(raw);
+    showEnhanced(txt);
+  } catch(e){ showEnhanced(localEnhance(raw)); }
+
+  btn.classList.remove('loading'); btn.disabled=false;
+}
+
+function localEnhance(r){
+  let e=r;
+  if(r.includes('جذاذة')) e+=' وفق الهيكل الثماني الرسمي لوزارة التربية التونسية 2025-2026 مع الأهداف والكفايات والوسائل';
+  else if(r.includes('اختبار')) e+=' وفق النموذج الرسمي مع وضعيتين ومعايير مع1/مع2/مع3 وجدول إسناد الأعداد';
+  else if(r.includes('فيديو')||r.includes('سكريبت')) e='اكتب سكريبت فيديو تعليمي احترافي (3 دقائق) يتضمن hook جذاب وشرح بأمثلة وتمرين وخلاصة لـ: '+r;
+  else if(r.includes('منشور')||r.includes('linkedin')) e+=' بأسلوب قصصي مع hook قوية وcall-to-action وهاشتاق مناسب';
+  return e;
+}
+
+function showEnhanced(text){
+  document.getElementById('enhResult').innerHTML=`
+    <textarea class="cmd-ta res" readonly rows="6">${text}</textarea>
+    <div class="res-acts">
+      <button class="ract" onclick="copyEnh(this,'${text.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+        <i class="ti ti-copy"></i> نسخ
+      </button>
+      <button class="ract" onclick="useInGen('${text.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+        <i class="ti ti-bolt"></i> استخدام
+      </button>
+      <button class="ract" onclick="enhanceCmd()">
+        <i class="ti ti-refresh"></i> تجديد
+      </button>
+    </div>`;
+}
+
+function copyEnh(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn.innerHTML; btn.innerHTML='<i class="ti ti-check"></i> تم!';
+    setTimeout(()=>btn.innerHTML=orig,2000);
+  });
+}
+
+function useInGen(text){
+  document.getElementById('fTitle').value=text;
+  nav('gen',document.querySelectorAll('.nbtn')[1]);
+}
+
+function renderCmdExamples(){
+  document.getElementById('exGrid').innerHTML=CMD_EXAMPLES.map((ex,i)=>`
+    <div class="exc" onclick="loadCmdEx(${i})">
+      <div class="exc-b">${ex.before}</div>
+      <div class="exc-arr"><i class="ti ti-arrow-left"></i> بعد التحسين</div>
+      <div class="exc-a">${ex.after.substring(0,65)}...</div>
+    </div>`).join('');
+}
+
+function loadCmdEx(i){
+  document.getElementById('rawCmd').value=CMD_EXAMPLES[i].before;
+  showCTab('enh',document.querySelectorAll('.ctab')[0]);
+  showEnhanced(CMD_EXAMPLES[i].after);
+}
+
+function renderLib2(filter=''){
+  const items=CMD_LIBRARY.filter(l=>!filter||l.title.includes(filter)||l.tag.includes(filter));
+  document.getElementById('libGrid2').innerHTML=items.map(l=>`
+    <div class="libi" onclick="useLib2('${l.full.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+      <div class="ltag">${l.tag}</div>
+      <div class="lbody"><div class="ltitle">${l.title}</div><div class="lprev">${l.prev}</div></div>
+      <i class="ti ti-arrow-left" style="font-size:13px;color:var(--muted);margin-top:2px"></i>
+    </div>`).join('');
+}
+
+function filterLib2(v){ renderLib2(v); }
+
+function useLib2(text){
+  document.getElementById('rawCmd').value=text;
+  showCTab('enh',document.querySelectorAll('.ctab')[0]);
+  showEnhanced(text);
+}
+
+function renderCmdTips(){
+  document.getElementById('tipsList').innerHTML=CMD_TIPS.map((t,i)=>`
+    <div class="tipi">
+      <div class="tipn">${i+1}</div>
+      <div class="tiptxt"><h4>${t.t}</h4><p>${t.p}</p></div>
+    </div>`).join('');
+}
+
+renderCmdExamples();
+renderLib2();
+renderCmdTips();
 
 updateHome();
 </script>
