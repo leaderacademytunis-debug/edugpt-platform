@@ -2,12 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 export default async function handler(req, res) {
-  // 1. التأكد من نوع الطلب
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'الطريقة غير مسموحة، استخدم POST' });
   }
 
-  // 2. استلام المعطيات من واجهة قسم الاختبارات
   const { degree, level, subject, lessonTitle } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -15,21 +13,17 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'مفتاح API مفقود' });
   }
 
-  /* =========================================================
-     الجزء الهندسي: سحب المعايير والأهداف آلياً
-     ========================================================= */
+  // 1. جلب البيانات الرسمية (شبكة التقييم والأهداف)
   let subjectCriteria = "استخدم المعايير التقييمية الرسمية للمادة.";
   let lessonObjectives = "أهداف الدرس المحددة في البرنامج.";
 
   try {
-    // أ. قراءة شبكة التقييم الخاصة بالمادة
     const criteriaPath = path.join(process.cwd(), 'evaluation_criteria.json');
     const criteriaData = JSON.parse(fs.readFileSync(criteriaPath, 'utf8'));
     if (criteriaData[subject]) {
       subjectCriteria = JSON.stringify(criteriaData[subject]);
     }
 
-    // ب. قراءة أهداف الدرس لضمان أن الاختبار لا يخرج عن الموضوع
     const currPath = path.join(process.cwd(), 'curriculum.json');
     const currData = JSON.parse(fs.readFileSync(currPath, 'utf8'));
     if (currData[degree]?.[level]?.[subject]?.[lessonTitle]) {
@@ -38,16 +32,15 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error("خطأ في قراءة ملفات البيانات:", error);
   }
-  /* ========================================================= */
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-  // 3. صياغة الطلب الصارم الموجه لبناء الاختبارات
+  // 2. صياغة الطلب الصارم مع إضافة أمر بناء جدول التقييم (Grading Grid)
   const payload = {
     system_instruction: {
       parts: [
         {
-          text: `أنت خبير تقييم وامتحانات تونسي في محرك EDUGPT (قسم Leader Prep). مهمتك تصميم اختبارات تقييمية دقيقة للمرحلة الابتدائية. يجب أن يعتمد الاختبار على "وضعية مشكل دالة" (سند شامل) تتفرع منها تعليمات متدرجة. يُمنع صياغة أسئلة مباشرة مجردة. يجب ربط كل تعليمة بمعيار تقييم رسمي تونسي.`
+          text: `أنت خبير تقييم وامتحانات تونسي في محرك EDUGPT (قسم Leader Prep). مهمتك تصميم اختبارات تقييمية دقيقة للمرحلة الابتدائية. يجب أن يعتمد الاختبار على "وضعية مشكل دالة" تتفرع منها تعليمات متدرجة. يُمنع صياغة أسئلة مباشرة مجردة. يجب ربط كل تعليمة بمعيار تقييم رسمي تونسي، ويجب توفير جدول إسناد أعداد جاهز للطباعة أسفل الاختبار.`
         }
       ]
     },
@@ -60,19 +53,20 @@ export default async function handler(req, res) {
             
             الضوابط البيداغوجية:
             1. يجب أن يقيس الاختبار هذه الأهداف حصراً: "${lessonObjectives}".
-            2. يجب أن تتوزع التعليمات لتقيس المعايير الرسمية التالية: "${subjectCriteria}".
+            2. يجب أن تتوزع التعليمات وجدول إسناد الأعداد بناءً على المعايير الرسمية التالية: "${subjectCriteria}".
 
-            أرجع النتيجة بصيغة JSON حصراً، ويجب أن يحتوي على المفاتيح التالية فقط لتطابق جدول الواجهة الأمامية:
-            - test_context: (نص السند أو وضعية المشكل الأساسية، يجب أن يكون واقعياً ومناسباً لعمر التلميذ، بالأرقام والمعطيات).
-            - instructions: (مصفوفة تحتوي على التعليمات الأساسية، كل تعليمة هي كائن يحتوي على: "question" نص التعليمة، "targeted_criterion" اسم المعيار الذي تقيسه، "suggested_score" العدد المقترح للتعليمة).
-            - excellence_question: (كائن يحتوي على تعليمة التميز: "question" سؤال مركب، "targeted_criterion" معيار التميز، "suggested_score" العدد المقترح).`
+            أرجع النتيجة بصيغة JSON حصراً، ويجب أن يحتوي على المفاتيح التالية فقط:
+            - test_context: (نص السند أو وضعية المشكل الأساسية).
+            - instructions: (مصفوفة التعليمات: "question" نص التعليمة، "targeted_criterion" اسم المعيار، "suggested_score" العدد).
+            - excellence_question: (تعليمة التميز: "question"، "targeted_criterion"، "suggested_score").
+            - grading_grid: (كائن يمثل جدول إسناد الأعداد، يحتوي على "criteria_rows" وهي مصفوفة، كل عنصر فيها يحتوي على "criterion_name" اسم المعيار المستعمل، و "score_levels" وهي مصفوفة تمثل مستويات التملك والأعداد المحتملة مثل ["0", "0.5", "1", "1.5", "2"]).`
           }
         ]
       }
     ],
     generationConfig: {
       responseMimeType: "application/json",
-      temperature: 0.2 // درجة حرارة منخفضة جداً لضمان صرامة المعايير وتجنب الهلوسة
+      temperature: 0.2 // لضمان صرامة المعايير وتجنب الارتجال
     }
   };
 
