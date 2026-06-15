@@ -1,47 +1,63 @@
-// هذه الأدوات (fs و path) تُشبه يدي وعيني الخادم، تسمح له بفتح وقراءة الملفات
 import fs from 'fs';
 import path from 'path';
 
 export default async function handler(req, res) {
+  // 1. التأكد من أن الطلب سليم وقادم عبر طريقة POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'الطريقة غير مسموحة، استخدم POST' });
+    return res.status(405).json({ error: 'الطريقة غير مسموحة' });
   }
 
-  // هنا نستلم المعلومات التي اختارها المستخدم من الموقع
-  const { lessonTitle, level, subject, duration } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY;
+  // 2. استلام المعطيات القادمة من موقعك (الدرجة، السنة، المادة، الدرس، المدة)
+  // ملاحظة هندسية: تأكد أن هذه الأسماء تطابق تماماً ما ترسله واجهة موقعك
+  const { degree, level, subject, lessonTitle, duration } = req.body;
 
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'مفتاح API مفقود' });
   }
 
   /* =========================================================
-     الجزء الهندسي الجديد: قراءة البرامج الرسمية وحقنها
+     الجزء الهندسي الذكي: البحث الديناميكي الآلي
      ========================================================= */
   
-  // 1. نحدد مكان ملف JSON الذي أنشأناه للتو ونقرأه
-  const curriculumPath = path.join(process.cwd(), 'curriculum.json');
-  const curriculumString = fs.readFileSync(curriculumPath, 'utf8');
-  const curriculumData = JSON.parse(curriculumString); // تحويل النص إلى بيانات حقيقية
+  let officialCompetency = "الالتزام بالتوجيهات البيداغوجية الرسمية.";
+  let officialObjectives = "توليد أهداف دقيقة تناسب مستوى الدرس.";
 
-  // 2. نبحث عن الكفاية الرسمية للدرس المطلوب
-  // نضع قيمة افتراضية أولاً في حال كان الدرس غير موجود في الملف
-  let officialCompetency = "الالتزام بتوجيهات وزارة التربية التونسية."; 
-  
-  // إذا وجدنا المستوى والمادة والدرس في الملف، نقوم بسحب النص الرسمي
-  if (curriculumData[level] && curriculumData[level][subject] && curriculumData[level][subject][lessonTitle]) {
-      officialCompetency = curriculumData[level][subject][lessonTitle];
+  try {
+    // أ. تحديد مكان ملف البيانات وقراءته من الذاكرة
+    const curriculumPath = path.join(process.cwd(), 'curriculum.json');
+    const curriculumString = fs.readFileSync(curriculumPath, 'utf8');
+    const curriculumData = JSON.parse(curriculumString);
+
+    // ب. السير في شجرة البيانات خطوة بخطوة للتأكد من وجود المادة والدرس
+    // تخيرنا استخدام هذا الترتيب: الدرجة -> السنة -> المادة -> نوع النشاط -> اسم الدرس
+    if (
+      curriculumData[degree] &&
+      curriculumData[degree][level] &&
+      curriculumData[degree][level][subject] &&
+      curriculumData[degree][level][subject][lessonTitle]
+    ) {
+      // ج. إذا عثر الكود على الدرس، يسحب الكفاية والأهداف الرسمية فوراً
+      const lessonInfo = curriculumData[degree][level][subject][lessonTitle];
+      officialCompetency = lessonInfo.الكفاية_الرسمية;
+      // تحويل مصفوفة الأهداف إلى نص مقروء يفهمه الذكاء الاصطناعي
+      officialObjectives = lessonInfo.الأهداف_المميزة.join('، ');
+    }
+  } catch (error) {
+    console.error("فشل قراءة ملف البرامج الرسمية:", error);
+    // لن نقوم بإيقاف السيرفر، سنعتمد على القيم الافتراضية في حال حدوث خطأ في القراءة
   }
 
   /* ========================================================= */
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
+  // 3. صياغة الطلب النهائي وحقن البيانات المستخرجة ديناميكياً
   const payload = {
     system_instruction: {
       parts: [
         {
-          text: "أنت متفقد بيداغوجي تونسي خبير ومساعد ذكي في منصة Leader Inclusion. مهمتك صياغة جذاذات دروس دقيقة وعملية. يجب كتابة المسائل الرياضية والأرقام كما سيقولها المعلم."
+          text: "أنت متفقد بيداغوجي تونسي خبير ومساعد ذكي في منصة Leader Inclusion. مهمتك صياغة جذاذات دروس دقيقة وعملية تعتمد على البرامج الرسمية لوزارة التربية التونسية. يُمنع منعاً باتاً استخدام عبارات عامة أو إنشائية. يجب كتابة المسائل الرياضية، النصوص، والحوارات الفعليّة بالأرقام والكلمات كما تُقال في القسم تماماً."
         }
       ]
     },
@@ -50,28 +66,28 @@ export default async function handler(req, res) {
         role: "user",
         parts: [
           {
-            // هنا يحدث السحر: ندمج المتغير ${officialCompetency} داخل الطلب
-            text: `قم بإنشاء جذاذة درس "${lessonTitle}" لمستوى "${level}" في مادة "${subject}" بمدة "${duration}". 
+            text: `قم بإنشاء جذاذة بيداغوجية كاملة لدرس "${lessonTitle}" لمستوى "${level}" (${degree}) في مادة "${subject}" بمدة "${duration}". 
             
-            قاعدة هامة جداً: يجب أن يتم بناء محتوى الجذاذة بالكامل ليحقق الكفاية الرسمية التالية: 
-            "${officialCompetency}"
+            ضوابط صارمة يجب الالتزام بها حرفياً:
+            1. الكفاية الرسمية المستهدفة: "${officialCompetency}"
+            2. الأهداف الرسمية المميزة: "${officialObjectives}"
 
-            يجب أن يكون الناتج بصيغة JSON حصراً، ويحتوي على المفاتيح التالية فقط:
-            - objectives: (مصفوفة من 3 أهداف دقيقة)
-            - starting_phase: (نص الوضعية الرياضية للانطلاق)
-            - exploration: (نص وضعية المشكل مع المعطيات)
-            - systematic_learning: (القاعدة والاستنتاج)
-            - integration: (نص تمرين تطبيقي بالأرقام)
-            - evaluation: (سؤال التقييم)
-            - support: (نشاط للمتعثرين)
-            - enrichment: (مسألة للمتميزين)`
+            يجب أن يكون الناتج بصيغة JSON حصراً، ويحتوي على المفاتيح التالية فقط لتطابق الجدول:
+            - objectives: (مصفوفة من الأهداف الدقيقة المترتبة عن الهدف الرسمي)
+            - starting_phase: (نص وضعية الانطلاق الفعلية)
+            - exploration: (وضعية المشكل أو الاستكشاف مع المحتوى الفعلي)
+            - systematic_learning: (التعلم المنهجي: الخلاصة والقاعدة المستنتجة)
+            - integration: (تمرين تطبيقي ملموس)
+            - evaluation: (سؤال أو نشاط التقييم)
+            - support: (نشاط مخصص للمتعثرين بيداغوجياً)
+            - enrichment: (وضعية متقدمة للإثراء وتميز الفائقين)`
           }
         ]
       }
     ],
     generationConfig: {
       responseMimeType: "application/json",
-      temperature: 0.3 
+      temperature: 0.3
     }
   };
 
@@ -86,13 +102,13 @@ export default async function handler(req, res) {
 
     if (data.candidates && data.candidates[0].content) {
       const jsonString = data.candidates[0].content.parts[0].text;
-      const parsedData = JSON.parse(jsonString); 
+      const parsedData = JSON.parse(jsonString);
       return res.status(200).json(parsedData);
     } else {
-      return res.status(500).json({ error: 'لم يتم إرجاع نتيجة صالحة' });
+      return res.status(500).json({ error: 'لم يتم إرجاع نتيجة صالحة من النموذج اللغوي' });
     }
   } catch (error) {
-    console.error("Error calling API:", error);
-    return res.status(500).json({ error: 'حدث خطأ في الخادم' });
+    console.error("خطأ أثناء الاتصال بـ Gemini API:", error);
+    return res.status(500).json({ error: 'حدث خطأ في الخادم الخلفي' });
   }
 }
