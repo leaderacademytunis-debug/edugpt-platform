@@ -2,8 +2,199 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDUGPT — المساعد البيداغوجي التونسي</title>
 <style>
-/* (احتفظ بكل الـ CSS السابق الخاص بك كما هو لتجنب أي تغيير في الشكل) */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gm:#5DCAA5;--gd:#0F6E56;
+  --p:#534AB7;--pl:#EEEDFE;--pd:#3C3489;
+  --b:#185FA5;--bl:#E6F1FB;--bd:#0C447C;
+  --a:#BA7517;--al:#FAEEDA;--ad:#633806;
+  --bg:#F4F4EF;--white:#FFFFFF;
+  --border:#E2E2DA;--text:#111;--muted:#666;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:.65rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--g);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:19px;height:19px}
+.logo-name{font-size:16px;font-weight:700;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted)}
+.nav{display:flex;gap:5px}
+.nbtn{padding:5px 13px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.nbtn:hover,.nbtn.active{background:var(--gl);color:var(--gd);border-color:var(--gm)}
+
+.pbar{height:3px;background:var(--border);position:sticky;top:57px;z-index:40}
+.pbar-fill{height:100%;background:var(--g);transition:width .35s;width:0}
+
+.page{display:none;padding:1.5rem;max-width:920px;margin:0 auto}
+.page.active{display:block}
+
+/* HOME */
+.hero{text-align:center;padding:2rem 1rem 1.5rem}
+.hero-tag{display:inline-block;background:var(--gl);color:var(--gd);border:1px solid var(--gm);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;margin-bottom:.85rem}
+.hero h1{font-size:1.9rem;font-weight:700;margin-bottom:.4rem}
+.hero p{font-size:14px;color:var(--muted);max-width:480px;margin:0 auto 1.25rem;line-height:1.6}
+.hero-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn-g{background:var(--g);color:#fff;border:none;padding:.65rem 1.4rem;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-g:hover{background:var(--gd)}
+.btn-w{background:var(--white);color:var(--text);border:1px solid var(--border);padding:.65rem 1.4rem;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-w:hover{border-color:var(--gm);color:var(--gd)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:1.25rem}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center}
+.kpi-n{font-size:24px;font-weight:700;color:var(--g)}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* GENERATOR */
+.card{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.card-h{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.lvgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.lvbtn{padding:.55rem .25rem;border:1px solid var(--border);border-radius:8px;background:var(--white);text-align:center;cursor:pointer;transition:all .13s}
+.lvbtn:hover{border-color:var(--gm);background:var(--gl)}
+.lvbtn.on{border:2px solid var(--g);background:var(--gl)}
+.lvcirc{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;font-size:11px;font-weight:700}
+.lvlbl{font-size:10px;color:var(--muted)}
+.matgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.matbtn{padding:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--white);display:flex;align-items:center;gap:7px;cursor:pointer;transition:all .13s}
+.matbtn.on{border:2px solid var(--g);background:var(--gl)}
+.matdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.matnm{font-size:12px;font-weight:600}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.flabel{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;display:block}
+.finput{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;transition:border .13s}
+.finput:focus{outline:none;border-color:var(--g)}
+.durgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.durbtn{padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--white);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .13s;font-family:inherit}
+.durbtn.on{border:2px solid var(--g);background:var(--gl);color:var(--gd)}
+.genbtn{width:100%;background:var(--g);color:#fff;border:none;border-radius:9px;padding:.9rem;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;font-family:inherit}
+.genbtn:hover{background:var(--gd)}
+
+/* LOADING */
+.loadbox{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:3rem;text-align:center}
+.spin{width:34px;height:34px;border:3px solid var(--gl);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1.1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lsteps{display:flex;flex-direction:column;gap:7px;margin-top:.85rem;text-align:right;max-width:320px;margin-inline:auto}
+.lsrow{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:7px;background:var(--bg)}
+.lsdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lsdot.d{background:var(--g)}.lsdot.c{background:var(--a)}.lsdot.w{background:var(--border)}
+.lstxt{font-size:12px;color:var(--muted)}.lstxt.d{color:var(--gd)}.lstxt.c{color:var(--a);font-weight:600}
+
+/* VIEWER */
+.vhead{background:var(--white);border:1px solid var(--border);border-radius:11px 11px 0 0;padding:1.1rem 1.25rem;border-bottom:none}
+.vpills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.5rem}
+.vpill{font-size:10px;padding:3px 9px;border-radius:10px;border:1px solid;font-weight:600}
+.vtitle{font-size:19px;font-weight:700}
+.vsub{font-size:12px;color:var(--muted);margin-top:3px}
+.vstamp{font-size:10px;background:var(--gl);color:var(--gd);border:1px solid var(--gm);border-radius:6px;padding:3px 9px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.snav-bar{background:var(--bg);border:1px solid var(--border);border-top:none;border-bottom:none;padding:.55rem 1rem;display:flex;gap:4px;flex-wrap:wrap}
+.snav{font-size:10px;padding:3px 9px;border-radius:14px;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .12s}
+.snav:hover{border-color:var(--gm);color:var(--gd)}
+.snav.on{background:var(--gl);color:var(--gd);border-color:var(--gm);font-weight:600}
+.sblock{border:1px solid var(--border);border-top:none}
+.sblock:last-child{border-radius:0 0 11px 11px}
+.shead{display:flex;align-items:center;gap:9px;padding:.7rem 1.1rem;cursor:pointer;background:var(--white)}
+.shead:hover{background:var(--bg)}
+.snum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sname{font-size:13px;font-weight:600}
+.sdur{font-size:10px;color:var(--muted);margin-right:auto}
+.sarr{color:var(--muted);font-size:11px;transition:transform .2s}
+.sarr.op{transform:rotate(180deg)}
+.sbody{padding:.85rem 1.1rem;background:var(--white);display:none}
+.sbody.op{display:block}
+.slbl{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:.3rem;letter-spacing:.04em}
+.stxt{font-size:12px;line-height:1.75;white-space:pre-line}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.65rem 0}
+.colbox{background:var(--bg);border-radius:7px;padding:.65rem;border:1px solid var(--border)}
+.evalgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.evalcol{border-radius:7px;padding:.65rem}
+.evalh{font-size:11px;font-weight:700;margin-bottom:.35rem}
+.evalb{font-size:11px;line-height:1.65}
+.actbar{background:var(--white);border:1px solid var(--border);border-radius:0 0 11px 11px;border-top:none;padding:.75rem 1.1rem;display:flex;gap:7px;flex-wrap:wrap}
+.abtn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:12px;color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit}
+.abtn:hover{border-color:var(--g);color:var(--gd)}
+.abtn svg{width:13px;height:13px;flex-shrink:0}
+.abtn.green{background:var(--g);color:#fff;border-color:var(--g)}.abtn.green:hover{background:var(--gd)}
+.abtn.purple{background:var(--pl);color:var(--pd);border-color:var(--p)}
+.abtn.amber{background:var(--al);color:var(--ad);border-color:var(--a)}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:100;align-items:center;justify-content:center}
+.moverlay.op{display:flex}
+.modal{background:var(--white);border-radius:13px;border:1px solid var(--border);padding:1.4rem;width:92%;max-width:420px}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:.85rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+.mfield{margin-bottom:.75rem}
+
+/* LIBRARY */
+.libtbar{display:flex;gap:7px;margin-bottom:.85rem;flex-wrap:wrap}
+.swrap{flex:1;display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:7px;padding:0 10px}
+.swrap svg{width:13px;height:13px;color:var(--muted);flex-shrink:0}
+.swrap input{flex:1;border:none;background:transparent;font-size:12px;color:var(--text);padding:7px 0;outline:none;font-family:inherit;direction:rtl}
+.libsel{padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:var(--white);font-size:12px;font-family:inherit;direction:rtl}
+.libgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.libcard{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.9rem;cursor:pointer;transition:border-color .13s}
+.libcard:hover{border-color:var(--gm)}
+.ltitle{font-size:13px;font-weight:700;margin:.4rem 0 .2rem}
+.ldate{font-size:11px;color:var(--muted)}
+.lacts{display:flex;gap:4px;margin-top:.5rem;justify-content:flex-end}
+.lact{width:25px;height:25px;border-radius:6px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s}
+.lact:hover{border-color:var(--g)}
+.lact svg{width:12px;height:12px;color:var(--muted)}
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:13px}
+
+.tabs-bar{display:flex;border-bottom:1px solid var(--border);background:var(--white);overflow-x:auto}
+.ctab{flex:1;min-width:90px;padding:.6rem .5rem;font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;border:none;border-bottom:2px solid transparent;background:none;font-family:inherit;white-space:nowrap;transition:all .13s}
+.ctab:hover{color:var(--text);background:var(--bg)}
+.ctab.on{color:#7C3AED;border-bottom-color:#7C3AED;font-weight:500}
+.ctab i{font-size:13px}
+.ctab-content{display:none;padding:1rem}
+.ctab-content.on{display:block}
+.enh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.epanel{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;flex-direction:column;gap:.65rem}
+.epanel-hdr{font-size:12px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:5px}
+.epanel-hdr.gold{color:#CA8A04}
+.cmd-ta{width:100%;min-height:170px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;text-align:right;resize:vertical;outline:none;line-height:1.7;transition:border .13s}
+.cmd-ta:focus{border-color:#7C3AED}
+.cmd-ta.res{background:var(--bg);border-style:dashed;resize:none;direction:rtl;text-align:right;unicode-bidi:bidi-override}
+.enh-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:var(--muted);min-height:170px;text-align:center}
+.enh-empty i{font-size:32px;opacity:.35}
+.enh-empty p{font-size:11px}
+.enh-btn{width:100%;padding:.65rem;border-radius:8px;border:none;background:#7C3AED;color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:opacity .13s}
+.enh-btn:hover{opacity:.88}
+.enh-btn:disabled{opacity:.45;cursor:not-allowed}
+.res-acts{display:flex;gap:5px;margin-top:.25rem}
+.ract{flex:1;padding:6px;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .12s}
+.ract:hover{border-color:var(--g);color:var(--gd)}
+.exg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.exc{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem;cursor:pointer;transition:all .12s}
+.exc:hover{border-color:#7C3AED}
+.exc-b{font-size:11px;color:var(--muted);margin-bottom:.3rem}
+.exc-arr{font-size:10px;color:#7C3AED;margin:.25rem 0}
+.exc-a{font-size:11px;color:var(--text);font-weight:500}
+.lib-srch{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;direction:rtl;outline:none;margin-bottom:.75rem;background:var(--white);color:var(--text)}
+.libg{display:flex;flex-direction:column;gap:6px}
+.libi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;display:flex;align-items:flex-start;gap:8px;cursor:pointer;transition:all .12s}
+.libi:hover{border-color:#7C3AED}
+.ltag{font-size:10px;padding:2px 7px;border-radius:10px;background:#EDE9FE;color:#7C3AED;font-weight:500;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.lbody{flex:1}
+.ltitle{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.lprev{font-size:11px;color:var(--muted)}
+.tips-l{display:flex;flex-direction:column;gap:7px}
+.tipi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;display:flex;gap:9px}
+.tipn{width:20px;height:20px;border-radius:50%;background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tiptxt h4{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.tiptxt p{font-size:11px;color:var(--muted);line-height:1.55}
+.espin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.enh-btn.loading .espin{display:block}
+.enh-btn.loading .elbl{display:none}
+@media(max-width:580px){.enh-grid,.exg{grid-template-columns:1fr}}
+@media(max-width:580px){
+  .kpi-row,.frow{grid-template-columns:repeat(2,1fr)}
+  .lvgrid{grid-template-columns:repeat(4,1fr)}
+  .matgrid,.twocol,.libgrid{grid-template-columns:1fr}
+  .evalgrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -15,7 +206,7 @@
     </div>
     <div>
       <div class="logo-name">EDUGPT</div>
-      <div class="logo-sub">المساعد البيداغوجي — وزارة التربية 2025-2026</div>
+      <div class="logo-sub">المساعد البيداغوجي  </div>
     </div>
   </div>
   <div class="nav">
@@ -25,44 +216,1377 @@
     <button class="nbtn" onclick="nav('test',this)">اختبار</button>
     <button class="nbtn" onclick="nav('cmds',this)">⚡ أوامر</button>
     <button class="abtn amber" onclick="inspectLesson()">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5"/></svg>
-      المتفقد الذكي
+  <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5"/></svg>
+  المتفقد الذكي
+</button>
+  </div>
+</div>
+<div class="pbar"><div class="pbar-fill" id="pb"></div></div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">المرحلة الابتدائية — تحضيري إلى سادسة</div>
+    <h1>أنشئ جذاذاتك في ثوانٍ</h1>
+    <p>مساعد بيداغوجي ذكي وفق البرامج الرسمية لوزارة التربية التونسية 2025-2026 — جذاذة كاملة + تصدير Word</p>
+    <div class="hero-btns">
+      <button class="btn-g" onclick="nav('gen',document.querySelectorAll('.nbtn')[1])">✦ ابدأ إنشاء جذاذة</button>
+      <button class="btn-w" onclick="nav('lib',document.querySelectorAll('.nbtn')[2])">مكتبة الجذاذات</button>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-n" id="hTotal">0</div><div class="kpi-l">جذاذة محفوظة</div></div>
+      <div class="kpi"><div class="kpi-n">7</div><div class="kpi-l">مستوى دراسي</div></div>
+      <div class="kpi"><div class="kpi-n">9</div><div class="kpi-l">مادة تعليمية</div></div>
+      <div class="kpi"><div class="kpi-n">8</div><div class="kpi-l">خطوات الجذاذة</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GENERATOR -->
+<div class="page" id="page-gen">
+  <div id="formArea">
+    <div class="card">
+      <div class="card-h">المستوى الدراسي</div>
+      <div class="lvgrid" id="lvGrid">
+        <div class="lvbtn" data-v="التحضيري" onclick="selLv(this)"><div class="lvcirc" style="background:#EEEDFE;color:#3C3489">ت</div><div class="lvlbl">تحضيري</div></div>
+        <div class="lvbtn" data-v="السنة الأولى" onclick="selLv(this)"><div class="lvcirc" style="background:#E6F1FB;color:#0C447C">1</div><div class="lvlbl">سنة 1</div></div>
+        <div class="lvbtn" data-v="السنة الثانية" onclick="selLv(this)"><div class="lvcirc" style="background:#EAF3DE;color:#27500A">2</div><div class="lvlbl">سنة 2</div></div>
+        <div class="lvbtn" data-v="السنة الثالثة" onclick="selLv(this)"><div class="lvcirc" style="background:#FAEEDA;color:#633806">3</div><div class="lvlbl">سنة 3</div></div>
+        <div class="lvbtn on" data-v="السنة الرابعة" onclick="selLv(this)"><div class="lvcirc" style="background:#FAECE7;color:#712B13">4</div><div class="lvlbl">سنة 4</div></div>
+        <div class="lvbtn" data-v="السنة الخامسة" onclick="selLv(this)"><div class="lvcirc" style="background:#FBEAF0;color:#72243E">5</div><div class="lvlbl">سنة 5</div></div>
+        <div class="lvbtn" data-v="السنة السادسة" onclick="selLv(this)"><div class="lvcirc" style="background:#E1F5EE;color:#085041">6</div><div class="lvlbl">سنة 6</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">المادة التعليمية</div>
+      <div class="matgrid">
+        <div class="matbtn on" data-v="اللغة العربية" onclick="selMat(this)"><div class="matdot" style="background:#534AB7"></div><div class="matnm">اللغة العربية</div></div>
+        <div class="matbtn" data-v="الرياضيات" onclick="selMat(this)"><div class="matdot" style="background:#185FA5"></div><div class="matnm">الرياضيات</div></div>
+        <div class="matbtn" data-v="اللغة الفرنسية" onclick="selMat(this)"><div class="matdot" style="background:#3B6D11"></div><div class="matnm">اللغة الفرنسية</div></div>
+        <div class="matbtn" data-v="التربية العلمية" onclick="selMat(this)"><div class="matdot" style="background:#1D9E75"></div><div class="matnm">التربية العلمية</div></div>
+        <div class="matbtn" data-v="التربية المدنية" onclick="selMat(this)"><div class="matdot" style="background:#BA7517"></div><div class="matnm">التربية المدنية</div></div>
+        <div class="matbtn" data-v="التربية الإسلامية" onclick="selMat(this)"><div class="matdot" style="background:#D85A30"></div><div class="matnm">التربية الإسلامية</div></div>
+        <div class="matbtn" data-v="التاريخ والجغرافيا" onclick="selMat(this)"><div class="matdot" style="background:#D4537E"></div><div class="matnm">التاريخ والجغرافيا</div></div>
+        <div class="matbtn" data-v="اللغة الإنجليزية" onclick="selMat(this)"><div class="matdot" style="background:#7F77DD"></div><div class="matnm">اللغة الإنجليزية</div></div>
+        <div class="matbtn" data-v="التربية التشكيلية" onclick="selMat(this)"><div class="matdot" style="background:#888780"></div><div class="matnm">التربية التشكيلية</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">تفاصيل الدرس</div>
+      <div class="frow">
+        <div><label class="flabel">عنوان الدرس *</label><input class="finput" id="fTitle" placeholder="النعت والمنعوت، الكسور..."></div>
+        <div><label class="flabel">اسم المدرسة</label><input class="finput" id="fSchool" placeholder="المدرسة الابتدائية..."></div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">اسم المعلم/ة (اختياري)</label><input class="finput" id="fTeacher" placeholder="..."></div>
+        <div><label class="flabel">مدة الحصة</label>
+          <div class="durgrid">
+            <button class="durbtn on" onclick="selDur(this,'45')">45 دق</button>
+            <button class="durbtn" onclick="selDur(this,'60')">60 دق</button>
+            <button class="durbtn" onclick="selDur(this,'90')">90 دق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="genbtn" onclick="startGen()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
+      توليد الجذاذة
     </button>
+  </div>
+  <div id="loadArea" style="display:none">
+    <div class="loadbox">
+      <div class="spin"></div>
+      <div style="font-size:14px;font-weight:600">جاري توليد الجذاذة...</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">EDUGPT يعمل وفق البرنامج الرسمي 2025-2026</div>
+      <div class="lsteps">
+        <div class="lsrow"><div class="lsdot c"></div><span class="lstxt c">تحليل الدرس وتحديد الكفايات</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">بناء وضعية الانطلاق</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">صياغة مراحل التعلم</span></div>
+        <div class="lsrow"><div class="lsdot w"></div><span class="lstxt">إعداد شبكة التقييم</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="resultArea" style="display:none"></div>
+</div>
+
+<!-- TEST GENERATOR -->
+<div class="page" id="page-test">
+  <div id="testFormArea">
+    <div class="card">
+      <div class="card-h">معلومات الاختبار</div>
+      <div class="frow">
+        <div><label class="flabel">المادة *</label>
+          <div class="matgrid" id="testMatGrid">
+            <div class="matbtn on" data-v="استعمال اللغة" onclick="selTestMat(this)"><div class="matdot" style="background:#534AB7"></div><div class="matnm">استعمال اللغة</div></div>
+            <div class="matbtn" data-v="الرياضيات" onclick="selTestMat(this)"><div class="matdot" style="background:#185FA5"></div><div class="matnm">الرياضيات</div></div>
+            <div class="matbtn" data-v="القراءة" onclick="selTestMat(this)"><div class="matdot" style="background:#3B6D11"></div><div class="matnm">القراءة</div></div>
+            <div class="matbtn" data-v="التربية العلمية" onclick="selTestMat(this)"><div class="matdot" style="background:#1D9E75"></div><div class="matnm">التربية العلمية</div></div>
+            <div class="matbtn" data-v="التربية المدنية" onclick="selTestMat(this)"><div class="matdot" style="background:#BA7517"></div><div class="matnm">التربية المدنية</div></div>
+            <div class="matbtn" data-v="التربية الإسلامية" onclick="selTestMat(this)"><div class="matdot" style="background:#D85A30"></div><div class="matnm">التربية الإسلامية</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">المستوى *</label>
+          <div class="lvgrid" id="testLvGrid">
+            <div class="lvbtn" data-v="التحضيري" onclick="selTestLv(this)"><div class="lvcirc" style="background:#EEEDFE;color:#3C3489">ت</div><div class="lvlbl">تحضيري</div></div>
+            <div class="lvbtn" data-v="السنة الأولى" onclick="selTestLv(this)"><div class="lvcirc" style="background:#E6F1FB;color:#0C447C">1</div><div class="lvlbl">سنة 1</div></div>
+            <div class="lvbtn" data-v="السنة الثانية" onclick="selTestLv(this)"><div class="lvcirc" style="background:#EAF3DE;color:#27500A">2</div><div class="lvlbl">سنة 2</div></div>
+            <div class="lvbtn on" data-v="السنة الثالثة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FAEEDA;color:#633806">3</div><div class="lvlbl">سنة 3</div></div>
+            <div class="lvbtn" data-v="السنة الرابعة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FAECE7;color:#712B13">4</div><div class="lvlbl">سنة 4</div></div>
+            <div class="lvbtn" data-v="السنة الخامسة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#FBEAF0;color:#72243E">5</div><div class="lvlbl">سنة 5</div></div>
+            <div class="lvbtn" data-v="السنة السادسة" onclick="selTestLv(this)"><div class="lvcirc" style="background:#E1F5EE;color:#085041">6</div><div class="lvlbl">سنة 6</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">الثلاثي</label>
+          <div class="durgrid">
+            <button class="durbtn" onclick="selTrimester(this,'الأول')">الأول</button>
+            <button class="durbtn" onclick="selTrimester(this,'الثاني')">الثاني</button>
+            <button class="durbtn on" onclick="selTrimester(this,'الثالث')">الثالث</button>
+          </div>
+        </div>
+        <div><label class="flabel">رقم الاختبار</label>
+          <div class="durgrid">
+            <button class="durbtn on" onclick="selTestNum(this,'1')">1</button>
+            <button class="durbtn" onclick="selTestNum(this,'2')">2</button>
+            <button class="durbtn" onclick="selTestNum(this,'3')">3</button>
+          </div>
+        </div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">المدرسة</label><input class="finput" id="tSchool" placeholder="المدرسة الابتدائية..."></div>
+        <div><label class="flabel">الدائرة</label><input class="finput" id="tRegion" placeholder="تونس 1..."></div>
+      </div>
+      <div class="frow">
+        <div><label class="flabel">الدروس المقررة للاختبار</label>
+          <input class="finput" id="tLessons" placeholder="مثال: المضارع، الحال، المفعول فيه، الإنشاء الموجّه"></div>
+        <div><label class="flabel">المدة</label>
+          <div class="durgrid">
+            <button class="durbtn" onclick="selDurT(this,'45 دق')">45 دق</button>
+            <button class="durbtn on" onclick="selDurT(this,'60 دق')">60 دق</button>
+            <button class="durbtn" onclick="selDurT(this,'90 دق')">90 دق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="genbtn" onclick="startTest()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
+      توليد الاختبار
+    </button>
+  </div>
+
+  <div id="testLoadArea" style="display:none">
+    <div class="loadbox">
+      <div class="spin"></div>
+      <div style="font-size:14px;font-weight:600">جاري توليد الاختبار...</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">EDUGPT يبني الوضعيات والتعليمات وفق النموذج الرسمي</div>
+    </div>
+  </div>
+
+  <div id="testResultArea" style="display:none"></div>
+</div>
+
+<!-- COMMANDS ENHANCER -->
+<div class="page" id="page-cmds">
+  <div class="tabs-bar">
+    <button class="ctab on" onclick="showCTab('enh',this)"><i class="ti ti-wand"></i> محسّن الأوامر</button>
+    <button class="ctab" onclick="showCTab('tpl',this)"><i class="ti ti-layout-grid"></i> قوالب</button>
+    <button class="ctab" onclick="showCTab('lib2',this)"><i class="ti ti-books"></i> المكتبة</button>
+    <button class="ctab" onclick="showCTab('tips',this)"><i class="ti ti-bulb"></i> نصائح</button>
+  </div>
+
+  <!-- ENHANCER -->
+  <div class="ctab-content on" id="ctab-enh">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">محسّن الأوامر الذكي</div>
+      <div style="font-size:12px;color:var(--muted)">اكتب أمراً بسيطاً وسيحوّله الذكاء الاصطناعي إلى أمر احترافي</div>
+    </div>
+    <div class="enh-grid">
+      <div class="epanel">
+        <div class="epanel-hdr"><i class="ti ti-pencil"></i> قبل التحسين</div>
+        <textarea class="cmd-ta" id="rawCmd" placeholder="اكتب أمرك البسيط...&#10;&#10;مثال:&#10;اعمل جذاذة رياضيات سنة 4&#10;اكتب اختبار لغة عربية&#10;اصنع فيديو عن الكسور"></textarea>
+        <button class="enh-btn" id="enhBtn" onclick="enhanceCmd()">
+          <div class="espin" id="espin"></div>
+          <span class="elbl"><i class="ti ti-wand"></i> تحسين الأمر</span>
+        </button>
+      </div>
+      <div class="epanel">
+        <div class="epanel-hdr gold"><i class="ti ti-sparkles"></i> بعد التحسين</div>
+        <div id="enhResult">
+          <div class="enh-empty">
+            <i class="ti ti-wand"></i>
+            <p>اكتب أمراً بسيطاً<br>وسيحوّله الذكاء الاصطناعي<br>إلى أمر احترافي</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="ctab-content" id="ctab-tpl">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">قوالب جاهزة</div>
+      <div style="font-size:12px;color:var(--muted)">اضغط على مثال لتحميله وتحسينه</div>
+    </div>
+    <div class="exg" id="exGrid"></div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="ctab-content" id="ctab-lib2">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">مكتبة الأوامر المحسّنة</div>
+      <div style="font-size:12px;color:var(--muted)">أوامر احترافية جاهزة للاستخدام</div>
+    </div>
+    <input class="lib-srch" type="text" placeholder="ابحث في المكتبة..." oninput="filterLib2(this.value)">
+    <div class="libg" id="libGrid2"></div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="ctab-content" id="ctab-tips">
+    <div style="margin-bottom:.75rem;direction:rtl">
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">أسرار ونصائح</div>
+      <div style="font-size:12px;color:var(--muted)">كيف تكتب أوامر فعّالة لـ EDUGPT</div>
+    </div>
+    <div class="tips-l" id="tipsList"></div>
+  </div>
+</div>
+
+<!-- LIBRARY -->
+<div class="page" id="page-lib">
+  <div class="libtbar">
+    <div class="swrap">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" id="libQ" placeholder="ابحث عن درس..." oninput="renderLib()">
+    </div>
+    <select class="libsel" id="libLv" onchange="renderLib()">
+      <option value="">كل المستويات</option>
+      <option>التحضيري</option><option>السنة الأولى</option><option>السنة الثانية</option>
+      <option>السنة الثالثة</option><option>السنة الرابعة</option><option>السنة الخامسة</option><option>السنة السادسة</option>
+    </select>
+    <select class="libsel" id="libMat" onchange="renderLib()">
+      <option value="">كل المواد</option>
+      <option>اللغة العربية</option><option>الرياضيات</option><option>اللغة الفرنسية</option><option>التربية العلمية</option>
+    </select>
+  </div>
+  <div id="libGrid" class="libgrid"></div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="moverlay" id="expModal">
+  <div class="modal">
+    <h3>تصدير الجذاذة — Word (.doc)</h3>
+    <div class="mfield"><label class="flabel">اسم المدرسة</label><input class="finput" id="ex_school" placeholder="المدرسة الابتدائية..."></div>
+    <div class="mfield"><label class="flabel">اسم المعلم/ة</label><input class="finput" id="ex_teacher" placeholder="اختياري"></div>
+    <div class="mfield"><label class="flabel">المنطقة التعليمية</label><input class="finput" id="ex_region" placeholder="تونس، صفاقس..."></div>
+    <div style="display:flex;gap:7px;margin-top:1rem">
+      <button class="abtn green" style="flex:1;justify-content:center" onclick="doExport()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        تحميل Word
+      </button>
+      <button class="abtn" onclick="document.getElementById('expModal').classList.remove('op')">إلغاء</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ... (كل السكربتات السابقة الخاصة بك) ...
+// ── State ──
+let SEL_LV  = 'السنة الرابعة';
+let SEL_MAT = 'اللغة العربية';
+let SEL_DUR = '45';
+let openSteps = new Set([0]);
+let curLesson = null;
+let LESSONS   = [];
 
-// الدالة الجديدة للمتفقد الذكي
-async function inspectLesson() {
-  if (!curLesson) {
-    alert("يرجى إنشاء أو فتح جذاذة أولاً لتحليلها.");
+const SMETA = [
+  {n:'وضعية الانطلاق',nc:'#E1F5EE',nn:'#085041',f:.10},
+  {n:'الاكتشاف',nc:'#E6F1FB',nn:'#042C53',f:.15},
+  {n:'التعلم المنهجي',nc:'#EEEDFE',nn:'#26215C',f:.25},
+  {n:'الإدماج',nc:'#FAEEDA',nn:'#412402',f:.20},
+  {n:'التقييم',nc:'#FAECE7',nn:'#4A1B0C',f:.10},
+  {n:'الدعم',nc:'#FBEAF0',nn:'#4B1528',f:.08},
+  {n:'الإثراء',nc:'#EAF3DE',nn:'#173404',f:.07},
+  {n:'شبكة التقييم',nc:'#F1EFE8',nn:'#444441',f:0},
+];
+const EC = [{bg:'#FAECE7',tc:'#712B13'},{bg:'#FAEEDA',tc:'#633806'},{bg:'#EAF3DE',tc:'#27500A'}];
+const MC = {
+  'اللغة العربية':{bg:'#EEEDFE',tc:'#3C3489'},
+  'الرياضيات':{bg:'#E6F1FB',tc:'#0C447C'},
+  'اللغة الفرنسية':{bg:'#EAF3DE',tc:'#27500A'},
+  'التربية العلمية':{bg:'#E1F5EE',tc:'#085041'},
+};
+const LC = {
+  'السنة الثالثة':{bg:'#FAEEDA',tc:'#633806'},
+  'السنة الرابعة':{bg:'#FAECE7',tc:'#712B13'},
+  'السنة الخامسة':{bg:'#FBEAF0',tc:'#72243E'},
+  'السنة السادسة':{bg:'#E1F5EE',tc:'#085041'},
+};
+
+// ── Nav ──
+function nav(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id==='lib') renderLib();
+  if (id==='home') updateHome();
+}
+
+// ── Form ──
+function selLv(el) { document.querySelectorAll('.lvbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_LV=el.dataset.v; }
+function selMat(el){ document.querySelectorAll('.matbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_MAT=el.dataset.v; }
+function selDur(el,v){ document.querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); SEL_DUR=v; }
+
+// ── Generate ──
+async function startGen() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { const el=document.getElementById('fTitle'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
+  show('form',false); show('load',true); show('result',false);
+  document.getElementById('pb').style.width = '10%';
+  animLoad();
+
+  const SYS = `أنت EDUGPT. أجب بـ JSON فقط بدون أي نص خارجه.
+
+قواعد المحتوى:
+- كل جملة تذكر اسم الدرس الفعلي وأمثلة ملموسة منه
+- ممنوع: "يلاحظ الأمثلة" / "يشارك شفهياً" / "يستنتج القاعدة" / "يُنجز فردياً"
+- مثال صحيح لدرس "الأعداد من 0 إلى 99": "يعرض 34 قرصاً ويكتب: 34=3 عقود+4 وحدات"
+
+JSON المطلوب (اجعل كل قيمة قصيرة — جملة أو جملتان فقط):
+{"competency":"...","objectives":["...","...","..."],"tools":"...","steps":[
+{"teacher":"جملة واحدة أو اثنتان خاصة بالدرس","student":"جملة واحدة أو اثنتان","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"teacher":"...","student":"...","goal":"..."},
+{"eval":[
+{"label":"مع1","items":["...","...","..."]},
+{"label":"مع2","items":["...","...","..."]},
+{"label":"مع3","items":["...","...","..."]}
+]}
+]}`;
+
+  const USR = `درس: "${title}" | ${SEL_LV} | ${SEL_MAT} | ${SEL_DUR} دقيقة
+اكتب JSON مختصراً — جملة أو جملتان لكل خانة — مع ذكر اسم "${title}" في كل جملة.`;
+
+  window._lastSYS = SYS;
+  window._lastUSR = USR;
+  let data = null;
+  try {
+    const reqBody = { model:'claude-sonnet-4-5', max_tokens:2500, system:SYS, messages:[{role:'user',content:USR}] };
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(reqBody)
+    });
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    // Try to extract valid JSON if truncated
+    let jsonStr = raw;
+    try {
+      data = JSON.parse(jsonStr);
+    } catch(parseErr) {
+      // Try to fix truncated JSON by finding last complete step
+      const lastBrace = jsonStr.lastIndexOf(']}');
+      if(lastBrace > 0) {
+        jsonStr = jsonStr.substring(0, lastBrace+2) + ']}';
+        try { data = JSON.parse(jsonStr); }
+        catch(e2) {
+          // Force close the JSON
+          jsonStr = jsonStr.replace(/,\s*$/, '') + ']}';
+          try { data = JSON.parse(jsonStr); }
+          catch(e3) { throw new Error('JSON invalide — augmentez max_tokens'); }
+        }
+      } else {
+        throw parseErr;
+      }
+    }
+  } catch(e) {
+    console.error('API Error:', e.message);
+    if(e.message && e.message.includes('fetch')) {
+      // CORS error - need proxy
+      showKeyDialog(title);
+      return;
+    }
+    show('load',false); show('form',false);
+    const area = document.getElementById('resultArea');
+    area.style.display='block';
+    area.innerHTML = '<div style="padding:2rem;text-align:center;direction:rtl;background:var(--white);border:1px solid var(--border);border-radius:11px"><p style="color:#712B13;font-size:14px">⚠️ خطأ: '+e.message+'</p><button onclick="resetGen()" style="margin-top:1rem;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:inherit">رجوع</button></div>';
     return;
   }
 
-  alert("جاري إرسال الجذاذة إلى المتفقد الذكي للتحليل...");
+  document.getElementById('pb').style.width = '100%';
+  curLesson = {
+    id: Date.now(), title, level: SEL_LV, mat: SEL_MAT, dur: SEL_DUR,
+    date: new Date().toLocaleDateString('ar-TN'),
+    school:   document.getElementById('fSchool').value  || 'المدرسة الابتدائية',
+    teacher:  document.getElementById('fTeacher').value || '',
+    data,
+  };
+  show('load',false); show('result',true);
+  renderResult();
+  setTimeout(()=>{ document.getElementById('pb').style.width='0'; }, 700);
+}
+
+function show(id, v) {
+  const map = {form:'formArea',load:'loadArea',result:'resultArea'};
+  document.getElementById(map[id]).style.display = v ? 'block' : 'none';
+}
+
+function animLoad() {
+  const dots = document.querySelectorAll('.lsdot');
+  const txts = document.querySelectorAll('.lstxt');
+  let i=0;
+  const iv = setInterval(()=>{
+    if(i>=dots.length){clearInterval(iv);return;}
+    dots[i].className='lsdot d'; txts[i].className='lstxt d';
+    if(i+1<dots.length){dots[i+1].className='lsdot c';txts[i+1].className='lstxt c';}
+    i++;
+  }, 1500);
+}
+
+function showKeyDialog(title) {
+  show('load',false);
+  show('form',false);
+  const area = document.getElementById('resultArea');
+  area.style.display = 'block';
+  area.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:11px;padding:2rem;text-align:center;direction:rtl">
+      <div style="font-size:2rem;margin-bottom:1rem">🔑</div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:.5rem;color:var(--text)">أدخل مفتاح Claude API</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6">
+        الـ proxy على Vercel لا يعمل بعد.<br>
+        أدخل مفتاحك مؤقتاً لاستمرار العمل.
+      </p>
+      <input type="password" id="keyInput" placeholder="sk-ant-api03-..." 
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:1rem;direction:ltr;text-align:left">
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="saveKeyAndRetry('${title.replace(/'/g,"\'")}',this)" 
+          style="background:var(--g);color:#fff;border:none;padding:9px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+          توليد الجذاذة
+        </button>
+        <button onclick="resetGen()"
+          style="background:var(--white);border:1px solid var(--border);padding:9px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+          رجوع
+        </button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:1rem">
+        المفتاح يُحفظ في المتصفح فقط ولا يُرسَل لأي خادم آخر.
+        <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--g)">احصل على مفتاح مجاني</a>
+      </p>
+    </div>`;
+}
+
+async function saveKeyAndRetry(title, btn) {
+  const key = document.getElementById('keyInput').value.trim();
+  if(!key || key.length < 10) {
+    document.getElementById('keyInput').style.borderColor='#E24B4A';
+    return;
+  }
+  localStorage.setItem('CLAUDE_KEY', key);
+  btn.textContent = 'جاري التوليد...';
+  btn.disabled = true;
+
+  const SYS = document.getElementById('resultArea')._sys || window._lastSYS;
+  const USR = document.getElementById('resultArea')._usr || window._lastUSR;
 
   try {
-    // هذا الرابط يجب أن يؤدي إلى ملف inspector_proxy.js على خادمك
-    const response = await fetch('https://YOUR-VERCEL-URL.vercel.app/api/inspector', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lesson: curLesson.data })
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01'
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:2500, system:SYS, messages:[{role:'user',content:USR}] })
     });
-
-    const report = await response.json();
-    console.log("تقرير المتفقد:", report);
-    
-    // يمكنك هنا عرض التقرير في نافذة منبثقة أو صفحة جديدة
-    alert("تم التحليل! التقرير جاهز في المتصفح (Console).");
-  } catch (error) {
-    console.error("خطأ في الاتصال بالمتفقد:", error);
-    alert("حدث خطأ أثناء الاتصال بالمتفقد الذكي.");
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message);
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const data = JSON.parse(raw);
+    curLesson = {
+      id:Date.now(), title, level:SEL_LV, mat:SEL_MAT, dur:SEL_DUR,
+      date:new Date().toLocaleDateString('ar-TN'),
+      school:document.getElementById('fSchool').value||'المدرسة الابتدائية',
+      teacher:document.getElementById('fTeacher').value||'',
+      data,
+    };
+    show('result',true);
+    renderResult();
+  } catch(e) {
+    btn.textContent = 'توليد الجذاذة';
+    btn.disabled = false;
+    document.getElementById('keyInput').style.borderColor='#E24B4A';
+    document.getElementById('keyInput').placeholder = 'خطأ: ' + e.message;
   }
 }
 
-// ... (بقية السكربتات الخاصة بك) ...
+function fallback(title) {
+  // ⚠️ fallback يعمل فقط عند فشل API — يعرض رسالة خطأ واضحة
+  return {
+    _error: true,
+    competency:`⚠️ فشل الاتصال بـ Claude API — تأكد من إضافة CLAUDE_API_KEY في Vercel`,
+    objectives:[
+      '❌ المفتاح غير موجود أو منتهي الصلاحية',
+      '✅ اذهب إلى: Vercel → Settings → Environment Variables',
+      '✅ أضف: CLAUDE_API_KEY = sk-ant-api03-...'
+    ],
+    tools:'راجع إعدادات Vercel',
+    steps:[
+      {teacher:'❌ Claude API غير متصل',student:'أضف CLAUDE_API_KEY في Vercel Dashboard',goal:'إصلاح الاتصال'},
+      {teacher:'اذهب إلى vercel.com',student:'Settings → Environment Variables',goal:''},
+      {teacher:`أضف: CLAUDE_API_KEY`,student:'أعد النشر: Redeploy',goal:''},
+      {teacher:'',student:'',goal:''},
+      {teacher:'',student:'',goal:''},
+      {teacher:'',student:'',goal:''},
+      {teacher:'',student:'',goal:''},
+      {eval:[
+        {label:'مع1',items:['تحقق من المفتاح','','']},
+        {label:'مع2',items:['أعد النشر','','']},
+        {label:'مع3',items:['اتصل بالدعم','','']},
+      ]}
+    ]
+  };
+}
+
+// ── Result viewer ──
+function renderResult() {
+  const d = curLesson.data;
+  const dur = parseInt(curLesson.dur);
+  const area = document.getElementById('resultArea');
+  const mc = MC[curLesson.mat]  || {bg:'#F1EFE8',tc:'#444441'};
+  const lc = LC[curLesson.level]|| {bg:'#E1F5EE',tc:'#085041'};
+
+  const navHtml = SMETA.map((s,i)=>
+    `<div class="snav ${i===0?'on':''}" onclick="toStep(${i},this)">${i+1}. ${s.n}</div>`
+  ).join('');
+
+  const stepsHtml = d.steps.map((step,idx)=>{
+    const m = SMETA[idx];
+    const mins = m.f>0 ? Math.round(dur*m.f)+' دق' : '';
+    if(idx===7&&step.eval){
+      const evalHtml = step.eval.map((e,j)=>`
+        <div class="evalcol" style="background:${EC[j].bg}">
+          <div class="evalh" style="color:${EC[j].tc}">${e.label}</div>
+          <div class="evalb" style="color:${EC[j].tc}">${e.items.map(x=>'• '+x).join('<br>')}</div>
+        </div>`).join('');
+      return `<div class="sblock" id="step-${idx}">
+        <div class="shead" onclick="togStep(${idx})">
+          <div class="snum" style="background:${m.nc};color:${m.nn}">${idx+1}</div>
+          <div class="sname">${m.n}</div>
+          <span class="sarr ${openSteps.has(idx)?'op':''}">▾</span>
+        </div>
+        <div class="sbody ${openSteps.has(idx)?'op':''}">
+          <div class="evalgrid">${evalHtml}</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="sblock" id="step-${idx}">
+      <div class="shead" onclick="togStep(${idx})">
+        <div class="snum" style="background:${m.nc};color:${m.nn}">${idx+1}</div>
+        <div class="sname">${m.n}</div>
+        <span class="sdur">${mins}</span>
+        <span class="sarr ${openSteps.has(idx)?'op':''}">▾</span>
+      </div>
+      <div class="sbody ${openSteps.has(idx)?'op':''}">
+        <div class="twocol">
+          <div class="colbox"><div class="slbl">نشاط المعلم</div><div class="stxt">${esc(step.teacher||'')}</div></div>
+          <div class="colbox"><div class="slbl">نشاط المتعلم</div><div class="stxt">${esc(step.student||'')}</div></div>
+        </div>
+        <div class="slbl" style="margin-top:.5rem">الهدف</div>
+        <div class="stxt">${esc(step.goal||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="vhead">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.5rem">
+        <div class="vpills">
+          <span class="vpill" style="background:${lc.bg};color:${lc.tc};border-color:${lc.tc}">${curLesson.level}</span>
+          <span class="vpill" style="background:${mc.bg};color:${mc.tc};border-color:${mc.tc}">${curLesson.mat}</span>
+          <span class="vpill" style="background:#FAEEDA;color:#633806;border-color:#BA7517">${curLesson.dur} دق</span>
+        </div>
+        <div class="vstamp">وزارة التربية 2025-2026</div>
+      </div>
+      <div class="vtitle">${curLesson.title}</div>
+      <div class="vsub">${curLesson.level} — ${curLesson.mat} — ${curLesson.school}</div>
+    </div>
+    <div class="snav-bar">${navHtml}</div>
+    ${stepsHtml}
+    <div class="actbar">
+      <button class="abtn green" onclick="openExport()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" stroke="white" stroke-width="1.5"/><line x1="9" y1="13" x2="15" y2="13" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="17" x2="15" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        تصدير Word
+      </button>
+      <button class="abtn" onclick="printL()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        طباعة PDF
+      </button>
+      <button class="abtn purple" onclick="saveL()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5"/><polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="saveLbl">حفظ في المكتبة</span>
+      </button>
+      <button class="abtn" onclick="resetGen()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        جذاذة جديدة
+      </button>
+    </div>`;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function togStep(i) {
+  openSteps.has(i) ? openSteps.delete(i) : openSteps.add(i);
+  document.querySelector(`#step-${i} .sbody`)?.classList.toggle('op', openSteps.has(i));
+  document.querySelector(`#step-${i} .sarr`)?.classList.toggle('op', openSteps.has(i));
+}
+function toStep(i, el) {
+  document.querySelectorAll('.snav').forEach(n=>n.classList.remove('on')); el.classList.add('on');
+  openSteps.add(i);
+  document.querySelector(`#step-${i} .sbody`)?.classList.add('op');
+  document.querySelector(`#step-${i} .sarr`)?.classList.add('op');
+  document.getElementById(`step-${i}`)?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resetGen() {
+  curLesson=null; openSteps=new Set([0]);
+  show('form',true); show('load',false); show('result',false);
+  document.getElementById('fTitle').value='';
+}
+
+// ── DOCX Export ──────────────────────────────────────────────
+function openExport() {
+  if(!curLesson) return;
+  document.getElementById('ex_school').value  = curLesson.school||'';
+  document.getElementById('ex_teacher').value = curLesson.teacher||'';
+  document.getElementById('expModal').classList.add('op');
+}
+
+function doExport() {
+  if(!curLesson) return;
+  const school  = document.getElementById('ex_school').value  || 'المدرسة الابتدائية';
+  const teacher = document.getElementById('ex_teacher').value || '';
+  const region  = document.getElementById('ex_region').value  || 'تونس';
+  document.getElementById('expModal').classList.remove('op');
+  buildWordDoc(curLesson, school, teacher, region);
+}
+
+function buildWordDoc(les, school, teacher, region) {
+  const d = les.data;
+  const dur = parseInt(les.dur);
+  const SNMS = ['وضعية الانطلاق','الاكتشاف','التعلم المنهجي','الإدماج','التقييم','الدعم','الإثراء'];
+  const SBG  = ['E1F5EE','E6F1FB','EEEDFE','FAEEDA','FAECE7','FBEAF0','EAF3DE'];
+  const STC  = ['085041','042C53','26215C','412402','4A1B0C','4B1528','173404'];
+  const SFRC = [.10,.15,.25,.20,.10,.08,.07];
+
+  const tdStyle = (bg,tc,extra='') =>
+    `border:1px solid #${tc};padding:7px 9px;background:#${bg};color:#${tc};vertical-align:top;text-align:right;${extra}`;
+
+  const metaRows = `
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px;width:13%">المدرسة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px;width:37%">${school}</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px;width:13%">المعلم/ة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px;width:37%">${teacher||'.....................'}</td>
+    </tr>
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المادة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.mat}</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المستوى</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.level}</td>
+    </tr>
+    <tr>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">المدة</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.dur} دقيقة</td>
+      <td style="background:#EEEDFE;color:#3C3489;font-weight:bold;border:1px solid #534AB7;padding:6px 9px">التاريخ</td>
+      <td style="border:1px solid #ccc;padding:6px 9px">${les.date}</td>
+    </tr>`;
+
+  const compRows = `
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;width:18%;vertical-align:middle">الكفاية المستهدفة</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${d.competency||''}</td>
+    </tr>
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;vertical-align:middle">الأهداف</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${(d.objectives||[]).map(o=>'• '+o).join('<br>')}</td>
+    </tr>
+    <tr>
+      <td style="background:#E6F1FB;color:#0C447C;font-weight:bold;border:1px solid #185FA5;padding:7px 9px;vertical-align:middle">الوسائل</td>
+      <td style="border:1px solid #ccc;padding:7px 9px">${d.tools||''}</td>
+    </tr>`;
+
+  const stepsRows = d.steps.slice(0,7).map((step,idx)=>{
+    const mins = Math.round(dur*SFRC[idx])+'دق';
+    const tch = (step.teacher||'').replace(/\n/g,'<br>');
+    const std = (step.student||'').replace(/\n/g,'<br>');
+    return `<tr>
+      <td style="${tdStyle(SBG[idx],STC[idx],'text-align:center;font-weight:bold;font-size:10pt;vertical-align:middle')}">${idx+1}<br>${SNMS[idx]}</td>
+      <td style="border:1px solid #ccc;padding:6px 8px;text-align:center;font-size:10pt;vertical-align:middle">${mins}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${tch}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${std}</td>
+      <td style="border:1px solid #ccc;padding:7px 9px;font-size:10pt">${step.goal||''}</td>
+    </tr>`;
+  }).join('');
+
+  const evalStep = d.steps[7];
+  const evalHdr = (evalStep?.eval||[]).map((e,j)=>
+    `<th style="${tdStyle(['FAECE7','FAEEDA','EAF3DE'][j],['712B13','633806','27500A'][j],'text-align:center;padding:8px 10px')}">${e.label}</th>`
+  ).join('');
+  const evalBody = (evalStep?.eval||[]).map((e,j)=>
+    `<td style="${tdStyle(['FAECE7','FAEEDA','EAF3DE'][j],['712B13','633806','27500A'][j],'padding:8px 10px')}">${e.items.map(x=>'• '+x).join('<br>')}</td>`
+  ).join('');
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page{size:A4 portrait;margin:2cm 1.8cm}
+  body{font-family:Arial,sans-serif;direction:rtl;font-size:11pt;color:#111;line-height:1.5}
+  table{border-collapse:collapse;width:100%;margin-bottom:12pt}
+  h1{font-size:18pt;color:#085041;text-align:center;margin:10pt 0 4pt;border-bottom:3pt solid #1D9E75;padding-bottom:6pt}
+  h2{font-size:12pt;color:#085041;background:#E1F5EE;padding:5pt 9pt;margin:14pt 0 6pt}
+  .hdr-g{color:#0F6E56;font-weight:bold;font-size:10pt}
+  .center{text-align:center}
+  .italic{font-style:italic;color:#999;font-size:9pt}
+</style>
+</head>
+<body>
+
+<table style="border:none">
+  <tr>
+    <td style="border:none;text-align:right"><span class="hdr-g">الجمهورية التونسية</span><br><span style="font-size:9pt;color:#888">${school} — ${region}</span></td>
+    <td style="border:none;text-align:center"><span style="font-size:20pt;font-weight:bold;color:#1D9E75">EDUGPT</span><br><span style="font-size:9pt;color:#5DCAA5">المساعد البيداغوجي الذكي</span></td>
+    <td style="border:none;text-align:left"><span class="hdr-g">وزارة التربية</span><br><span style="font-size:9pt;color:#888">السنة الدراسية 2025-2026</span></td>
+  </tr>
+</table>
+
+<h1>${les.title}</h1>
+<p class="center" style="color:#666;font-size:10pt;margin-bottom:12pt">جذاذة درس رسمية — ${les.mat} — ${les.level}</p>
+
+<table><tbody>${metaRows}</tbody></table>
+<table><tbody>${compRows}</tbody></table>
+
+<h2>سير الدرس — الخطوات البيداغوجية</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:13%">المرحلة</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:7%">الزمن</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:35%">نشاط المعلم</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:30%">نشاط المتعلم</th>
+      <th style="background:#1D9E75;color:#fff;border:1px solid #085041;padding:7px;text-align:center;width:15%">الهدف</th>
+    </tr>
+  </thead>
+  <tbody>${stepsRows}</tbody>
+</table>
+
+<h2>شبكة التقييم — مع1 / مع2 / مع3</h2>
+<table>
+  <thead><tr>${evalHdr}</tr></thead>
+  <tbody><tr>${evalBody}</tr></tbody>
+</table>
+
+<table style="margin-top:20pt">
+  <tr>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:33%;color:#888;font-size:10pt">إمضاء المدير/ة<br><br><br></td>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:34%;color:#888;font-size:10pt">إمضاء المعلم/ة<br><br><br></td>
+    <td style="border:1px solid #ccc;padding:20pt 15pt;text-align:center;width:33%;color:#888;font-size:10pt">خاتم المؤسسة<br><br><br></td>
+  </tr>
+</table>
+
+<p class="italic center" style="margin-top:14pt">أُنجزت هذه الجذاذة بمساعدة منصة EDUGPT — وزارة التربية التونسية 2025-2026 — ${les.date}</p>
+</body>
+</html>`;
+
+  const blob = new Blob(['\ufeff'+html], {type:'application/msword;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), {
+    href: url,
+    download: `جذاذة_${les.title.replace(/\s+/g,'_')}_${les.level.replace(/\s+/g,'_')}.doc`
+  });
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printL() {
+  if(!curLesson) return;
+  const d = curLesson.data;
+  const w = window.open('','_blank');
+  w.document.write(`<html dir="rtl"><head><title>${curLesson.title}</title>
+  <style>body{font-family:Arial;direction:rtl;padding:2cm;font-size:11pt}
+  h1{font-size:16pt;color:#085041;border-bottom:2px solid #1D9E75;padding-bottom:8px}
+  h2{font-size:12pt;color:#085041;background:#E1F5EE;padding:6px 10px;margin:12px 0 6px}
+  table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px 8px}
+  @media print{}</style></head><body>
+  <h1>${curLesson.title}</h1>
+  <p>${curLesson.level} — ${curLesson.mat} — ${curLesson.dur} دق — ${curLesson.school}</p>
+  <h2>الكفاية والأهداف</h2><p>${d.competency}</p>
+  <ul>${(d.objectives||[]).map(o=>'<li>'+o+'</li>').join('')}</ul>
+  <h2>الوسائل</h2><p>${d.tools}</p>
+  <h2>سير الدرس</h2>
+  <table><tr><th>المرحلة</th><th>نشاط المعلم</th><th>نشاط المتعلم</th><th>الهدف</th></tr>
+  ${d.steps.slice(0,7).map((s,i)=>`<tr><td>${['وضعية الانطلاق','الاكتشاف','التعلم المنهجي','الإدماج','التقييم','الدعم','الإثراء'][i]}</td><td>${s.teacher}</td><td>${s.student}</td><td>${s.goal}</td></tr>`).join('')}
+  </table></body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),400);
+}
+
+// ── Library ──
+function saveL() {
+  if(!curLesson) return;
+  LESSONS = JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  if(!LESSONS.find(l=>l.id===curLesson.id)) LESSONS.unshift(curLesson);
+  localStorage.setItem('edugpt3', JSON.stringify(LESSONS.slice(0,50)));
+  const lbl=document.getElementById('saveLbl'); lbl.textContent='تم الحفظ ✓';
+  setTimeout(()=>lbl.textContent='حفظ في المكتبة',2000);
+  updateHome();
+}
+
+function renderLib() {
+  LESSONS = JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  const q   = (document.getElementById('libQ').value||'').toLowerCase();
+  const lv  = document.getElementById('libLv').value;
+  const mat = document.getElementById('libMat').value;
+  const fil = LESSONS.filter(l=>{
+    const mq  = !q  || l.title.toLowerCase().includes(q)||l.mat.includes(q)||l.level.includes(q);
+    const mlv = !lv || l.level===lv;
+    const mm  = !mat|| l.mat===mat;
+    return mq&&mlv&&mm;
+  });
+  const grid = document.getElementById('libGrid');
+  if(!fil.length){ grid.innerHTML='<div class="empty">لا توجد جذاذات محفوظة بعد<br>أنشئ جذاذة وأحفظها من عارض الجذاذة</div>'; return; }
+  const mc2=(m)=>MC[m]||{bg:'#F1EFE8',tc:'#444441'};
+  const lc2=(l)=>LC[l]||{bg:'#E1F5EE',tc:'#085041'};
+  grid.innerHTML=fil.map(l=>`
+    <div class="libcard">
+      <div class="vpills">
+        <span class="vpill" style="background:${lc2(l.level).bg};color:${lc2(l.level).tc};border-color:${lc2(l.level).tc};font-size:10px">${l.level}</span>
+        <span class="vpill" style="background:${mc2(l.mat).bg};color:${mc2(l.mat).tc};border-color:${mc2(l.mat).tc};font-size:10px">${l.mat}</span>
+        <span class="vpill" style="background:#F1EFE8;color:#444;border-color:#ccc;font-size:10px">${l.dur} دق</span>
+      </div>
+      <div class="ltitle">${l.title}</div>
+      <div class="ldate">${l.date} — ${l.school}</div>
+      <div class="lacts">
+        <div class="lact" onclick="openLib(${l.id})" title="فتح"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        <div class="lact" onclick="expLib(${l.id})" title="تصدير Word"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="lact" style="border-color:#ffcdd2" onclick="delLib(${l.id})" title="حذف"><svg viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="#e53935" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" stroke="#e53935" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      </div>
+    </div>`).join('');
+}
+
+function openLib(id) {
+  const l=LESSONS.find(x=>x.id===id); if(!l) return;
+  curLesson=l; openSteps=new Set([0]);
+  nav('gen',document.querySelectorAll('.nbtn')[1]);
+  show('form',false); show('load',false); show('result',true);
+  renderResult();
+}
+function expLib(id) { const l=LESSONS.find(x=>x.id===id); if(l) buildWordDoc(l,l.school,l.teacher,'تونس'); }
+function delLib(id) {
+  if(!confirm('حذف هذه الجذاذة نهائياً؟')) return;
+  LESSONS=LESSONS.filter(l=>l.id!==id);
+  localStorage.setItem('edugpt3',JSON.stringify(LESSONS));
+  renderLib(); updateHome();
+}
+
+function updateHome() {
+  LESSONS=JSON.parse(localStorage.getItem('edugpt3')||'[]');
+  const el=document.getElementById('hTotal'); if(el) el.textContent=LESSONS.length;
+}
+
+// ══════════════════════════════════════════
+// TEST GENERATOR
+// ══════════════════════════════════════════
+let TEST_MAT = 'استعمال اللغة';
+let TEST_LV  = 'السنة الثالثة';
+let TEST_TRIM = 'الثالث';
+let TEST_NUM  = '1';
+let TEST_DUR  = '60 دق';
+
+function selTestMat(el){ document.querySelectorAll('#testMatGrid .matbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_MAT=el.dataset.v; }
+function selTestLv(el) { document.querySelectorAll('#testLvGrid .lvbtn').forEach(b=>b.classList.remove('on'));  el.classList.add('on'); TEST_LV=el.dataset.v;  }
+function selTrimester(el,v){ document.querySelectorAll('#testFormArea .durgrid').item(0).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_TRIM=v; }
+function selTestNum(el,v)  { document.querySelectorAll('#testFormArea .durgrid').item(1).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_NUM=v;  }
+function selDurT(el,v)     { document.querySelectorAll('#testFormArea .durgrid').item(2).querySelectorAll('.durbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); TEST_DUR=v;  }
+
+async function startTest() {
+  const lessons = document.getElementById('tLessons').value.trim();
+  if(!lessons){ const el=document.getElementById('tLessons'); el.style.borderColor='#E24B4A'; el.focus(); setTimeout(()=>el.style.borderColor='',1500); return; }
+  const school = document.getElementById('tSchool').value || 'المدرسة الابتدائية';
+  const region = document.getElementById('tRegion').value || '';
+
+  document.getElementById('testFormArea').style.display='none';
+  document.getElementById('testLoadArea').style.display='block';
+  document.getElementById('testResultArea').style.display='none';
+
+  const SYS_T = `أنت EDUGPT — خبير في بناء الاختبارات التونسية الرسمية للمرحلة الابتدائية.
+أجب بـ JSON فقط بدون أي نص خارجه.
+بنِ اختباراً وفق النموذج الرسمي لوزارة التربية: وضعيّتان أو ثلاث، كل وضعيّة تحتوي سنداً وتعليمات متدرجة.
+المعايير: مع1 (الملاءمة) مع2 (الانسجام) مع3 (الثراء).
+{"school":"...","region":"...","situations":[
+  {"title":"الوضعيّة 1","support":"نص أو سند الوضعية","instructions":[
+    {"num":1,"text":"نص التعليمة الأولى","lines":2},
+    {"num":2,"text":"نص التعليمة الثانية","lines":3}
+  ],"criteria":"مع1"},
+  {"title":"الوضعيّة 2","support":"...","instructions":[...],"criteria":"مع2","isProduction":true,"productionText":"نص تعليمة الإنتاج","productionLines":7}
+],"evalCriteria":["مع1 — الملاءمة","مع2 — الانسجام","مع3 — الثراء"]}`;
+
+  const USR_T = `أنشئ اختبار ${TEST_TRIM} في ${TEST_MAT} للـ${TEST_LV}.
+الدروس: ${lessons}. المدة: ${TEST_DUR}.
+بنِ وضعيّات حقيقية ومحددة تتضمن نصوصاً أصيلة وتعليمات واضحة ومتدرجة من مع1 إلى مع3.`;
+
+  let testData = null;
+  try {
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2500,system:SYS_T,messages:[{role:'user',content:USR_T}]})
+    });
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    testData = JSON.parse(raw);
+  } catch(e) {
+    console.error('Test API error:', e.message);
+    testData = buildTestFallback(lessons);
+  }
+
+  document.getElementById('testLoadArea').style.display='none';
+  document.getElementById('testResultArea').style.display='block';
+  renderTestResult(testData, school, region, lessons);
+}
+
+function buildTestFallback(lessons) {
+  return {
+    situations:[
+      {title:'الوضعيّة 1',support:'نص لقراءة التلميذ',
+       instructions:[{num:1,text:'أجب عن السؤال الأول المتعلق بـ: '+lessons,lines:2},{num:2,text:'أجب عن السؤال الثاني',lines:3}],
+       criteria:'مع1'},
+      {title:'الوضعيّة 2',support:'',
+       instructions:[{num:1,text:'أجب عن السؤال المتعلق بـ: '+lessons,lines:3}],
+       criteria:'مع2',isProduction:true,productionText:'أنتج نصاً قصيراً (5 أسطر) موظفاً: '+lessons,productionLines:6},
+    ],
+    evalCriteria:['مع1 — الملاءمة','مع2 — الانسجام','مع3 — الثراء']
+  };
+}
+
+function renderTestResult(data, school, region, lessons) {
+  const area = document.getElementById('testResultArea');
+  const sitsHtml = (data.situations||[]).map((sit,i)=>{
+    const instrHtml = (sit.instructions||[]).map(instr=>`
+      <p style="margin:.4rem 0;font-size:13px"><strong>${instr.num}/</strong> ${instr.text}</p>
+      ${Array(instr.lines||2).fill('<div style="border-bottom:1px dashed #ccc;margin:.3rem 0;height:22px"></div>').join('')}
+    `).join('');
+    const prodHtml = sit.isProduction ? `
+      <p style="margin:.6rem 0;font-size:13px;font-weight:600;color:#185FA5">${sit.productionText||''}</p>
+      ${Array(sit.productionLines||6).fill('<div style="border-bottom:1px dashed #ccc;margin:.3rem 0;height:22px"></div>').join('')}
+    ` : '';
+    return `
+    <tr>
+      <td style="border:1px solid #ccc;padding:8px;text-align:center;font-size:12px;vertical-align:middle;background:#F9F9F9;width:14%">
+        <strong>${data.evalCriteria?.[i]||'مع'+(i+1)}</strong>
+      </td>
+      <td style="border:1px solid #ccc;padding:10px;direction:rtl;vertical-align:top">
+        ${sit.title ? `<p style="font-weight:700;font-size:14px;margin-bottom:.5rem">${sit.title}</p>` : ''}
+        ${sit.support ? `<div style="background:#F5F5F0;padding:8px;border-radius:6px;font-size:13px;margin-bottom:.6rem;line-height:1.7">${sit.support}</div>` : ''}
+        ${instrHtml}
+        ${prodHtml}
+      </td>
+      <td style="border:1px solid #ccc;padding:8px;text-align:center;width:10%"></td>
+    </tr>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden">
+      <!-- Header info -->
+      <div style="background:#F0F4F8;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);direction:rtl">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <span style="font-size:15px;font-weight:700">${TEST_MAT} — ${TEST_LV}</span>
+            <span style="font-size:12px;color:var(--muted);margin-right:8px">الثلاثي ${TEST_TRIM} — اختبار ${TEST_NUM} — ${TEST_DUR}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${school} ${region?'— '+region:''}</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">الدروس: ${lessons}</div>
+      </div>
+
+      <!-- Test table -->
+      <div style="padding:1rem;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;direction:rtl">
+          <thead>
+            <tr>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px;width:14%">المعايير</th>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px">${TEST_MAT.includes('رياض')?'الأنشطة':'الوضعيّات'}</th>
+              <th style="border:1px solid #333;padding:8px;background:#333;color:#fff;font-size:13px;width:10%">النقاط</th>
+            </tr>
+          </thead>
+          <tbody>${sitsHtml}</tbody>
+        </table>
+      </div>
+
+      <!-- Grading table -->
+      <div style="padding:0 1rem 1rem">
+        <p style="font-weight:700;font-size:13px;text-align:center;margin:.75rem 0;direction:rtl">جدول إسناد الأعداد</p>
+        <table style="width:100%;border-collapse:collapse;direction:rtl">
+          <tr>
+            ${['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+              .map(h=>`<th style="border:1px solid #ccc;padding:6px;background:#EEE;font-size:11px;text-align:center">${h}</th>`).join('')}
+          </tr>
+          <tr>
+            ${Array(8).fill('<td style="border:1px solid #ccc;padding:14px;text-align:center"></td>').join('')}
+          </tr>
+        </table>
+      </div>
+
+      <!-- Actions -->
+      <div style="border-top:1px solid var(--border);padding:.85rem 1.25rem;display:flex;gap:8px;flex-wrap:wrap;background:var(--bg)">
+        <button class="abtn green" onclick="exportTestWord('${lessons.replace(/'/g,"\'")}')">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" stroke="white" stroke-width="1.5"/></svg>
+          تصدير Word
+        </button>
+        <button class="abtn" onclick="printTest()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          طباعة
+        </button>
+        <button class="abtn" onclick="resetTest()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          اختبار جديد
+        </button>
+      </div>
+    </div>`;
+
+  // Store test data for export
+  window._lastTestData = data;
+  window._lastTestMeta = {school, region, lessons};
+}
+
+function exportTestWord(lessons) {
+  const data = window._lastTestData;
+  if(!data) return;
+  const meta = window._lastTestMeta||{};
+  const colLabel = TEST_MAT.includes('رياض') ? 'الأنشطة' : 'الوضعيّات';
+
+  const sitsRows = (data.situations||[]).map((sit,i)=>{
+    let actHtml = '';
+    if(sit.title) actHtml += `<p style="font-weight:bold;font-size:12pt;margin-bottom:6pt">${sit.title}</p>`;
+    if(sit.support) actHtml += `<div style="background:#F5F5F0;padding:6pt;margin-bottom:6pt;font-size:11pt;line-height:1.7">${sit.support}</div>`;
+    (sit.instructions||[]).forEach(instr=>{
+      actHtml += `<p style="font-size:11pt;margin:4pt 0"><strong>${instr.num}/</strong> ${instr.text}</p>`;
+      for(let l=0;l<(instr.lines||2);l++) actHtml += `<p style="border-bottom:1px solid #ccc;margin:3pt 0;min-height:18pt">&nbsp;</p>`;
+    });
+    if(sit.isProduction){
+      actHtml += `<p style="font-weight:bold;font-size:11pt;color:#185FA5;margin-top:8pt">${sit.productionText||''}</p>`;
+      for(let l=0;l<(sit.productionLines||6);l++) actHtml += `<p style="border-bottom:1px solid #ccc;margin:3pt 0;min-height:18pt">&nbsp;</p>`;
+    }
+    return `<tr>
+      <td style="border:1px solid #000;padding:6pt;text-align:center;font-size:10pt;background:#F9F9F9;vertical-align:middle"><strong>${data.evalCriteria?.[i]||'مع'+(i+1)}</strong></td>
+      <td style="border:1px solid #000;padding:8pt;direction:rtl;vertical-align:top">${actHtml}</td>
+      <td style="border:1px solid #000;padding:6pt;text-align:center"></td>
+    </tr>`;
+  }).join('');
+
+  const gradingRow = ['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+    .map(h=>`<td style="border:1px solid #ccc;padding:16pt 4pt;text-align:center;font-size:9pt">&nbsp;</td>`).join('');
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<style>
+  @page{size:A4;margin:1.8cm 1.5cm}
+  body{font-family:Arial,sans-serif;direction:rtl;font-size:11pt;color:#111}
+  table{border-collapse:collapse;width:100%}
+  .hdr-tbl td{border:2px solid #000;padding:6pt 8pt;vertical-align:middle}
+</style></head><body>
+<table class="hdr-tbl"><tr>
+  <td style="width:32%;text-align:right">
+    <strong>الجمهوريّة التونسيّة<br>وزارة التّربية</strong><br>
+    الدائرة: ${meta.region||region}<br>
+    المدرسة: ${meta.school||''}<br>
+    السنة الدراسيّة: 2025-2026
+  </td>
+  <td style="width:36%;text-align:center">
+    <strong style="font-size:13pt">اختبار الثلاثي ${TEST_TRIM}<br>في ${TEST_MAT}<br>الاختبار عدد ${TEST_NUM}</strong><br>
+    المدّة: ${TEST_DUR}
+  </td>
+  <td style="width:32%;text-align:right">
+    القسم: ${TEST_LV}<br>
+    الاسم: ..............................<br>
+    اللقب: ..............................<br>
+    التاريخ: ..............................
+  </td>
+</tr></table>
+<br>
+<table>
+  <thead><tr>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;width:16%;text-align:center">المعايير</th>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;text-align:center">${colLabel}</th>
+    <th style="border:2px solid #000;padding:7pt;background:#333;color:#fff;width:10%;text-align:center">النقاط</th>
+  </tr></thead>
+  <tbody>${sitsRows}</tbody>
+</table>
+<br>
+<p style="font-weight:bold;text-align:center;font-size:12pt">جدول إسناد الأعداد</p>
+<table>
+  <tr>${['مع1','مع2','مع3','المجموع','من 20','بالأرقام','بالحروف','إمضاء المصحح']
+    .map(h=>`<th style="border:1px solid #ccc;padding:5pt;background:#EEE;font-size:9pt;text-align:center">${h}</th>`).join('')}</tr>
+  <tr>${gradingRow}</tr>
+</table>
+<br>
+<p style="border-top:1px solid #000;padding-top:6pt;font-size:9pt;text-align:center">
+  المعلم/ة: ..............................&nbsp;&nbsp;&nbsp;&nbsp;
+  المدير/ة: ..............................&nbsp;&nbsp;&nbsp;&nbsp;
+  الصفحة 1
+</p>
+</body></html>`;
+
+  const blob = new Blob(['﻿'+html],{type:'application/msword;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),{
+    href:url, download:`اختبار_${TEST_MAT}_${TEST_LV}_ث${TEST_NUM}.doc`
+  });
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printTest() {
+  const area = document.getElementById('testResultArea');
+  const w = window.open('','_blank');
+  w.document.write(`<html dir="rtl"><head><title>اختبار</title>
+  <style>body{font-family:Arial;direction:rtl;padding:1.5cm;font-size:11pt}
+  table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:7px}
+  @media print{}</style></head><body>${area.innerHTML}</body></html>`);
+  w.document.close(); setTimeout(()=>w.print(),400);
+}
+
+function resetTest() {
+  document.getElementById('testFormArea').style.display='block';
+  document.getElementById('testLoadArea').style.display='none';
+  document.getElementById('testResultArea').style.display='none';
+}
+
+
+// ══════════════════════════════════════
+// COMMANDS ENHANCER
+// ══════════════════════════════════════
+const CMD_EXAMPLES = [
+  {before:'اعمل جذاذة رياضيات سنة 4',after:'أنشئ جذاذة درس كاملة في الرياضيات للسنة الرابعة وفق المنهج التونسي 2025-2026 بالهيكل الثماني الرسمي مع أهداف وكفايات ووسائل وزمن لكل خطوة'},
+  {before:'اكتب اختبار لغة عربية',after:'صمّم اختباراً محروساً في اللغة العربية وفق النموذج الرسمي لوزارة التربية يتضمن وضعيتين بسند نصي وتعليمات متدرجة من مع1 إلى مع3 وجدول إسناد الأعداد'},
+  {before:'اصنع فيديو عن الكسور',after:'اكتب سكريبت فيديو تعليمي (3 دقائق) عن الكسور العادية للسنة الخامسة: hook جذاب، شرح بأمثلة حياتية، تمرين تفاعلي، خلاصة'},
+  {before:'اكتب منشور عن EDUGPT',after:'اكتب منشور LinkedIn احترافي عن EDUGPT بأسلوب قصصي مع hook قوية وcall-to-action و3 هاشتاق — 150 كلمة'},
+];
+
+const CMD_LIBRARY = [
+  {tag:'جذاذة',title:'جذاذة درس متكاملة',prev:'أنشئ جذاذة درس كاملة في [المادة] للسنة [X] وفق المنهج التونسي...',
+   full:'أنشئ جذاذة درس كاملة في [المادة] للسنة [X] وفق المنهج التونسي 2025-2026 بالهيكل الثماني: وضعية الانطلاق، الاكتشاف، التعلم المنهجي، الإدماج، التقييم، الدعم، الإثراء. اذكر الأهداف والكفايات والوسائل والزمن لكل خطوة مع محتوى خاص بدرس "[عنوان الدرس]".'},
+  {tag:'اختبار',title:'فرض محروس رسمي',prev:'صمّم اختباراً محروساً في [المادة] وفق النموذج الرسمي...',
+   full:'صمّم اختباراً محروساً في [المادة] للسنة [X] وفق النموذج الرسمي لوزارة التربية: ترويسة رسمية، وضعيتين بسندات أصيلة، تعليمات متدرجة من مع1 إلى مع3، جدول إسناد الأعداد. المدة: [X] دقيقة.'},
+  {tag:'شبكة تقييم',title:'شبكة معايير التقييم',prev:'أنشئ شبكة تقييم لدرس [X] بمعايير مع1/مع2/مع3...',
+   full:'أنشئ شبكة تقييم لدرس "[عنوان الدرس]" للسنة [X] تتضمن: مع1 (الملاءمة) مع 3 مؤشرات، مع2 (الانسجام) مع 3 مؤشرات، مع3 (الثراء) مع 3 مؤشرات. لكل مؤشر: الأداء المتوقع وطريقة التحقق.'},
+  {tag:'خطة فصلية',title:'التوزيع السنوي الفصلي',prev:'أنشئ خطة فصلية لمادة [X] موزّعة على 13 أسبوعاً...',
+   full:'أنشئ خطة فصلية لمادة [المادة] للسنة [X] موزّعة على 13 أسبوعاً تتضمن: الوحدات والدروس، الحصص المخصصة، أسبوع المراجعة، أسبوع التقييم. وفق التوزيع الرسمي لوزارة التربية التونسية.'},
+  {tag:'LinkedIn',title:'منشور LinkedIn تعليمي',prev:'اكتب منشور LinkedIn بأسلوب قصصي عن [الموضوع]...',
+   full:'اكتب منشور LinkedIn احترافي بأسلوب قصصي يبدأ بـ hook قوية حول [الموضوع]. يتضمن: قصة واقعية، 3 نقاط رئيسية، call-to-action، 3 هاشتاق. اللغة: عربية مبسطة. 150-250 كلمة.'},
+  {tag:'hook',title:'5 جمل افتتاحية',prev:'اكتب 5 hook مختلفة لمحتوى عن [موضوع]...',
+   full:'اكتب 5 جمل افتتاحية متنوعة (سؤال مثير، إحصائية، قصة، تحدي، اقتباس) لمحتوى حول [الموضوع]. كل hook جملة أو جملتان تشدّ الانتباه فوراً.'},
+  {tag:'وضعية',title:'وضعية إدماجية',prev:'أنشئ وضعية إدماجية للسنة [X] تجمع دروس...',
+   full:'أنشئ وضعية إدماجية للسنة [X] تجمع: [الدروس] في سياق حياتي مألوف. تتضمن: سند نصي، 3 تعليمات من مع1 إلى مع3، تعليمة إنتاج. الكفاية المستهدفة: [الكفاية].'},
+  {tag:'دعم وإثراء',title:'أنشطة دعم وإثراء',prev:'أنشئ أنشطة دعم للمتعثرين وإثراء للمتقدمين...',
+   full:'أنشئ لدرس "[الدرس]" للسنة [X]: 3 أنشطة دعم مبسّطة ومتدرجة للمتعثرين، 3 أنشطة إثراء تتحدى المتقدمين. كل نشاط مع تعليمة واضحة ووسيلة مناسبة.'},
+];
+
+const CMD_TIPS = [
+  {t:'كن محدداً في المادة والمستوى',p:'بدل "اعمل جذاذة" قل "أنشئ جذاذة رياضيات للسنة الرابعة درس الكسور العادية"'},
+  {t:'اذكر عنوان الدرس الفعلي',p:'بدل "درس في اللغة" قل "درس النعت والمنعوت". الدقة تُحسّن الجودة كثيراً.'},
+  {t:'حدّد النموذج المطلوب',p:'قل "وفق النموذج الرسمي التونسي" أو "بالهيكل الثماني" للحصول على نتيجة متوافقة.'},
+  {t:'أضف السياق',p:'مثال: "مدة 45 دقيقة" أو "الثلاثي الثالث" أو "لتلاميذ المناطق الريفية"'},
+  {t:'استخدم الأوامر المحسّنة مباشرة',p:'انسخ الأمر المحسّن والصقه في حقل الجذاذة أو الاختبار مباشرة.'},
+  {t:'جرّب الإعادة مع تفصيل أكثر',p:'إذا لم تُعجبك النتيجة، أضف تفصيلاً أكثر في الأمر الأصلي واضغط تحسين مجدداً.'},
+];
+
+function showCTab(id, btn) {
+  document.querySelectorAll('.ctab-content').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ctab-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+async function enhanceCmd() {
+  const raw = document.getElementById('rawCmd').value.trim();
+  if(!raw){ const el=document.getElementById('rawCmd'); el.style.borderColor='#7C3AED'; setTimeout(()=>el.style.borderColor='',1500); return; }
+  const btn=document.getElementById('enhBtn');
+  btn.classList.add('loading'); btn.disabled=true;
+
+  const SYS=`أنت مهندس أوامر خبير متخصص في بناء prompts احترافية لمنصة EDUGPT التعليمية التونسية.
+
+مهمتك: تحويل أي أمر بسيط إلى prompt احترافي كامل يتبع الهيكل السبعي الذهبي:
+
+1. الدور (Role): حدد الخبير المناسب للمهمة
+2. السياق (Context): المنهج التونسي 2025-2026 والمرحلة المناسبة
+3. المهمة (Task): المطلوب بدقة مع المادة والمستوى
+4. التنسيق (Format): الهيكل والشكل المطلوب للناتج
+5. القيود (Constraints): ما هو ممنوع وما هو مطلوب
+6. مثال (Example): مثال صحيح ومثال خاطئ
+7. التحقق (Verification): سؤال تحقق قبل الإجابة
+
+قواعد ذهبية لكل نوع:
+- جذاذة/درس → الدور: "أنت مستشار بيداغوجي تونسي خبير مع 20 سنة خبرة"
+- اختبار/فرض → الدور: "أنت مفتش تربوي متخصص في التقييم وفق النموذج الرسمي"
+- محتوى/منشور → الدور: "أنت كاتب محتوى تعليمي خبير ومتخصص في التسويق الرقمي"
+- وضعية/تقييم → الدور: "أنت مصمم مناهج متخصص في الكفايات والتقييم"
+
+ممنوع في الناتج: "يلاحظ الأمثلة" / "يشارك شفهياً" / "يستنتج القاعدة" / "يُنجز فردياً"
+مطلوب: كل جملة تذكر اسم الدرس أو محتواه الفعلي بالأرقام والأمثلة.
+
+أجب بالـ prompt المحسّن فقط بدون مقدمة أو تفسير.
+هام جداً: اجعل كل عنصر من العناصر السبعة في 2-3 أسطر فقط. لا تطوّل.`;
+
+  const USR_MSG = `حوّل هذا الأمر البسيط إلى prompt احترافي كامل بالهيكل السبعي:
+
+"${raw}"
+
+بنِ الـ prompt بالعناصر السبعة: Role + Context + Task + Format + Constraints + Example + Verification.
+كل عنصر في سطرين فقط. موجز ومركّز.`;
+
+  try {
+    const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,system:SYS,
+        messages:[{role:'user',content:USR_MSG}]})
+    });
+    const j=await r.json();
+    const txt=(j.content||[]).map(b=>b.text||'').join('').trim()||localEnhance(raw);
+    showEnhanced(txt);
+  } catch(e){ showEnhanced(localEnhance(raw)); }
+
+  btn.classList.remove('loading'); btn.disabled=false;
+}
+
+function localEnhance(r){
+  let role='', task=r, fmt='', constraints='', example='', verify='';
+  const ctx='السياق: منصة EDUGPT — المنهج التونسي 2025-2026 — المرحلة الابتدائية.';
+
+  if(r.includes('جذاذة')||r.includes('درس')){
+    role='أنت مستشار بيداغوجي تونسي خبير في التعليم الابتدائي مع 20 سنة خبرة ومشرف على برنامج وزارة التربية.';
+    fmt='التنسيق: الهيكل الثماني الرسمي — لكل خطوة: الهدف والوسائل ونشاط المعلم ونشاط المتعلم والزمن.';
+    constraints='القيود: ممنوع "يلاحظ الأمثلة" و"يشارك شفهياً". كل جملة تذكر اسم الدرس وأمثلة فعلية.';
+    example='مثال صحيح: "يعرض 34 قرصاً ويكتب: 34=3 عقود+4 وحدات". مثال خاطئ: "يلاحظ الأمثلة".';
+    verify='تحقق: هل كل جملة تحتوي على رقم أو مثال فعلي من الدرس؟';
+  } else if(r.includes('اختبار')||r.includes('فرض')){
+    role='أنت مفتش تربوي تونسي متخصص في التقييم وبناء الاختبارات الرسمية للمرحلة الابتدائية.';
+    fmt='التنسيق: النموذج الرسمي لوزارة التربية — ترويسة + وضعيتان + جدول إسناد الأعداد.';
+    constraints='القيود: تعليمات متدرجة من مع1 إلى مع3. سند نصي أصيل ومحدد.';
+    example='مثال: "وضعية 1 — مع1: أضع علامة # في نهاية كل جملة..."';
+    verify='تحقق: هل الوضعيات متدرجة فعلاً من مع1 إلى مع3؟';
+  } else if(r.includes('منشور')||r.includes('linkedin')||r.includes('محتوى')){
+    role='أنت كاتب محتوى تعليمي خبير ومتخصص في التسويق الرقمي للمؤسسات التعليمية.';
+    fmt='التنسيق: hook قوية + 3 نقاط رئيسية + call-to-action + 3 هاشتاق. 150-200 كلمة.';
+    constraints='القيود: أسلوب قصصي وعاطفي. جملة أولى تشدّ الانتباه فوراً.';
+    example='مثال hook: "قبل سنة كنت أقضي 3 ساعات لإعداد جذاذة واحدة..."';
+    verify='تحقق: هل الجملة الأولى تشدّ الانتباه في أقل من 3 ثوانٍ؟';
+  } else {
+    role='أنت خبير بيداغوجي تونسي متخصص في التعليم الابتدائي.';
+    fmt='التنسيق: منظّم ومحدد وقابل للتطبيق مباشرة في القسم.';
+    constraints='القيود: محتوى خاص ومحدد. لا عبارات عامة.';
+    example='';
+    verify='تحقق: هل المحتوى قابل للتطبيق مباشرة؟';
+  }
+
+  return `${role}
+
+${ctx}
+
+المهمة: ${task}
+
+${fmt}
+
+${constraints}
+
+${example}
+
+${verify}`;
+}
+
+function showEnhanced(text){
+  document.getElementById('enhResult').innerHTML=`
+    <textarea class="cmd-ta res" readonly rows="6" dir="rtl" style="direction:rtl;text-align:right;unicode-bidi:embed">${text}</textarea>
+    <div class="res-acts">
+      <button class="ract" onclick="copyEnh(this,'${text.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+        <i class="ti ti-copy"></i> نسخ
+      </button>
+      <button class="ract" onclick="useInGen('${text.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+        <i class="ti ti-bolt"></i> استخدام
+      </button>
+      <button class="ract" onclick="enhanceCmd()">
+        <i class="ti ti-refresh"></i> تجديد
+      </button>
+    </div>`;
+}
+
+function copyEnh(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn.innerHTML; btn.innerHTML='<i class="ti ti-check"></i> تم!';
+    setTimeout(()=>btn.innerHTML=orig,2000);
+  });
+}
+
+function useInGen(text){
+  document.getElementById('fTitle').value=text;
+  nav('gen',document.querySelectorAll('.nbtn')[1]);
+}
+
+function renderCmdExamples(){
+  document.getElementById('exGrid').innerHTML=CMD_EXAMPLES.map((ex,i)=>`
+    <div class="exc" onclick="loadCmdEx(${i})">
+      <div class="exc-b">${ex.before}</div>
+      <div class="exc-arr"><i class="ti ti-arrow-left"></i> بعد التحسين</div>
+      <div class="exc-a">${ex.after.substring(0,65)}...</div>
+    </div>`).join('');
+}
+
+function loadCmdEx(i){
+  document.getElementById('rawCmd').value=CMD_EXAMPLES[i].before;
+  showCTab('enh',document.querySelectorAll('.ctab')[0]);
+  showEnhanced(CMD_EXAMPLES[i].after);
+}
+
+function renderLib2(filter=''){
+  const items=CMD_LIBRARY.filter(l=>!filter||l.title.includes(filter)||l.tag.includes(filter));
+  document.getElementById('libGrid2').innerHTML=items.map(l=>`
+    <div class="libi" onclick="useLib2('${l.full.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+      <div class="ltag">${l.tag}</div>
+      <div class="lbody"><div class="ltitle">${l.title}</div><div class="lprev">${l.prev}</div></div>
+      <i class="ti ti-arrow-left" style="font-size:13px;color:var(--muted);margin-top:2px"></i>
+    </div>`).join('');
+}
+
+function filterLib2(v){ renderLib2(v); }
+
+function useLib2(text){
+  document.getElementById('rawCmd').value=text;
+  showCTab('enh',document.querySelectorAll('.ctab')[0]);
+  showEnhanced(text);
+}
+
+function renderCmdTips(){
+  document.getElementById('tipsList').innerHTML=CMD_TIPS.map((t,i)=>`
+    <div class="tipi">
+      <div class="tipn">${i+1}</div>
+      <div class="tiptxt"><h4>${t.t}</h4><p>${t.p}</p></div>
+    </div>`).join('');
+}
+
+renderCmdExamples();
+renderLib2();
+renderCmdTips();
+
+updateHome();
 </script>
 </body>
 </html>
