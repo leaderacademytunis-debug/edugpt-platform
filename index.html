@@ -483,23 +483,50 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
   <div id="correctFormArea">
     <div class="card" style="margin-bottom:.85rem">
       <div class="card-h">الجذاذة المراد تصحيحها</div>
-      <div style="margin-bottom:.6rem;direction:rtl">
+
+      <!-- Upload zone -->
+      <div id="uploadZone" onclick="document.getElementById('fileInput').click()"
+        style="border:2px dashed var(--border);border-radius:10px;padding:1.4rem;text-align:center;cursor:pointer;margin-bottom:.85rem;transition:all .15s;background:var(--bg);direction:rtl">
+        <div style="font-size:26px;margin-bottom:.3rem">📄</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">اسحب ملف الجذاذة هنا أو اضغط للاختيار</div>
+        <div style="font-size:11px;color:var(--muted)">يدعم: Word (.docx .doc) · PDF · نص عادي (.txt)</div>
+        <input type="file" id="fileInput" accept=".docx,.doc,.pdf,.txt" style="display:none" onchange="handleFile(this)">
+      </div>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.85rem">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--muted)">أو الصق النص مباشرة</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <!-- Meta -->
+      <div style="margin-bottom:.65rem;direction:rtl">
         <label class="flabel">المادة والمستوى (اختياري — يُحسّن الدقة)</label>
         <div style="display:flex;gap:8px">
           <input class="finput" id="cMat" placeholder="مثال: اللغة العربية" style="flex:1">
           <input class="finput" id="cLv" placeholder="مثال: السنة الرابعة" style="flex:1">
         </div>
       </div>
+
       <textarea class="correct-ta" id="correctInput"
         placeholder="الصق هنا نص الجذاذة كاملاً...
 
 مثال:
-وضعية الانطلاق: يطرح المعلم سؤالاً تحفيزياً ويلاحظ التلاميذ الأمثلة ويشاركون إجاباتهم شفهياً...
-الاكتشاف: يستنتج التلاميذ القاعدة...
-..."></textarea>
-      <button class="correct-btn" id="correctBtn" onclick="startCorrect()" style="margin-top:.7rem">
+وضعية الانطلاق: يطرح المعلم سؤالاً تحفيزياً...
+الاكتشاف: يستنتج التلاميذ القاعدة..."></textarea>
+
+      <!-- File badge -->
+      <div id="fileBadge" style="display:none;margin-top:.5rem;padding:6px 10px;background:var(--gl);border:1px solid var(--gm);border-radius:7px;font-size:12px;color:var(--gd);direction:rtl;align-items:center;gap:6px">
+        <span>📄</span>
+        <span id="fileName" style="flex:1"></span>
+        <span style="color:var(--muted)">تم تحميل الملف ✓</span>
+        <button onclick="clearFile()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✕</button>
+      </div>
+
+      <button class="correct-btn" id="correctBtn" onclick="startCorrect()" style="margin-top:.75rem">
         <div class="cspin" id="cspin"></div>
-        <span class="clbl"><i class="ti ti-search"></i> تصحيح الجذاذة</span>
+        <span class="clbl">🔍 تصحيح الجذاذة</span>
       </button>
     </div>
   </div>
@@ -1640,6 +1667,126 @@ renderCmdExamples();
 renderLib2();
 renderCmdTips();
 
+
+// ══════════════════════════════════════════
+// FILE UPLOAD HANDLER
+// ══════════════════════════════════════════
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  // Show badge
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileBadge').style.display = 'flex';
+
+  // Style upload zone
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = 'var(--g)';
+  zone.style.background = 'var(--gl)';
+
+  if (ext === 'txt') {
+    // Plain text - read directly
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('correctInput').value = e.target.result;
+    };
+    reader.readAsText(file, 'UTF-8');
+
+  } else if (ext === 'docx' || ext === 'doc') {
+    // Use mammoth.js via CDN for docx extraction
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        // Load mammoth dynamically if not loaded
+        if (!window.mammoth) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+        }
+        const result = await mammoth.extractRawText({arrayBuffer: e.target.result});
+        document.getElementById('correctInput').value = result.value;
+        if (!result.value.trim()) {
+          document.getElementById('correctInput').value = '';
+          showFileError('لم يتمكن من قراءة الملف — الصق النص يدوياً');
+        }
+      } catch(err) {
+        showFileError('خطأ في قراءة الملف — الصق النص يدوياً');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+
+  } else if (ext === 'pdf') {
+    // PDF - use PDF.js
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        if (!window.pdfjsLib) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        const pdf = await pdfjsLib.getDocument({data: e.target.result}).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          fullText += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        document.getElementById('correctInput').value = fullText.trim();
+        if (!fullText.trim()) showFileError('PDF نصي فارغ — جرّب نسخ النص يدوياً');
+      } catch(err) {
+        showFileError('خطأ في قراءة PDF — الصق النص يدوياً');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function showFileError(msg) {
+  document.getElementById('correctInput').placeholder = '⚠️ ' + msg;
+  document.getElementById('fileName').textContent = msg;
+}
+
+function clearFile() {
+  document.getElementById('fileInput').value = '';
+  document.getElementById('correctInput').value = '';
+  document.getElementById('fileBadge').style.display = 'none';
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = 'var(--border)';
+  zone.style.background = 'var(--bg)';
+}
+
+// Drag and drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('uploadZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'var(--g)';
+    zone.style.background = 'var(--gl)';
+  });
+  zone.addEventListener('dragleave', () => {
+    if (!document.getElementById('fileInput').files.length) {
+      zone.style.borderColor = 'var(--border)';
+      zone.style.background = 'var(--bg)';
+    }
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById('fileInput').files = e.dataTransfer.files;
+      handleFile(document.getElementById('fileInput'));
+    }
+  });
+});
 
 // ══════════════════════════════════════════
 // JADADHA CORRECTOR — مصحّح الجذاذات
