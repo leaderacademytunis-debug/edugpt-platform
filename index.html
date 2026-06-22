@@ -1873,42 +1873,116 @@ async function startCorrect() {
   const docTypeLabels = {lesson:'جذاذة درس',test:'اختبار',eval:'شبكة تقييم'};
   const docLabel = docTypeLabels[CORRECT_DOC_TYPE]||'وثيقة تعليمية';
 
-  const SYS_C = `أنت مفتش تربوي تونسي خبير متخصص في تقييم الوثائق البيداغوجية للمرحلة الابتدائية وفق المنهج الرسمي 2025-2026.
+  // Criteria with exact weights (from Inspector.tsx reference)
+  const CRITERIA_WEIGHTS = {
+    lesson: [
+      {id:1, nom:"الرأسية والبيانات الإدارية", noteMax:3, sousPoints:[
+        {label:"وجود المادة والمستوى والمحور والوحدة", noteMax:0.5},
+        {label:"وجود عنوان الحصة ورقمها", noteMax:0.5},
+        {label:"وجود الكفاية النهائية والأفقية", noteMax:1},
+        {label:"وجود الأهداف الإجرائية الواضحة والقابلة للقياس", noteMax:1},
+      ]},
+      {id:2, nom:"سيرورة الحصة ومنهجية التدريس", noteMax:5, sousPoints:[
+        {label:"مرحلة الانطلاق/التهيئة: وضعية تحفيزية مناسبة", noteMax:1},
+        {label:"مرحلة البناء/الاستكشاف: نشاط المتعلم محوري", noteMax:1.5},
+        {label:"مرحلة الهيكلة/التركيب: بناء المفهوم أو القاعدة", noteMax:1},
+        {label:"مرحلة التطبيق/التدريب: تمارين تطبيقية متدرجة", noteMax:0.75},
+        {label:"مرحلة الإدماج: وضعية إدماجية ذات دلالة", noteMax:0.75},
+      ]},
+      {id:3, nom:"التمايز وتكييف التعلمات", noteMax:3, sousPoints:[
+        {label:"أنشطة دعم للمتعثرين", noteMax:1},
+        {label:"أنشطة إثراء للمتقدمين", noteMax:1},
+        {label:"مراعاة الفوارق الفردية", noteMax:1},
+      ]},
+      {id:4, nom:"التقييم التكويني ومعايير مع1/مع2/مع3", noteMax:4, sousPoints:[
+        {label:"وجود شبكة تقييم مع1 (الملاءمة)", noteMax:1.5},
+        {label:"وجود مع2 (الانسجام) بمؤشرات واضحة", noteMax:1.5},
+        {label:"وجود مع3 (الثراء) للمتقدمين", noteMax:1},
+      ]},
+      {id:5, nom:"الوسائل التعليمية والأنشطة", noteMax:2, sousPoints:[
+        {label:"تنوع الوسائل وملاءمتها للدرس", noteMax:1},
+        {label:"تنوع الأنشطة وتفاعليتها", noteMax:1},
+      ]},
+      {id:6, nom:"خصوصية المحتوى وجودته", noteMax:3, sousPoints:[
+        {label:"ذكر اسم الدرس في كل نشاط", noteMax:1},
+        {label:"غياب العبارات العامة الممنوعة", noteMax:1},
+        {label:"أمثلة فعلية وأرقام محددة", noteMax:1},
+      ]},
+    ],
+    test: [
+      {id:1, nom:"الترويسة والبيانات", noteMax:2, sousPoints:[
+        {label:"اكتمال البيانات الرسمية", noteMax:1},
+        {label:"وضوح التعليمات والمدة", noteMax:1},
+      ]},
+      {id:2, nom:"الوضعيات والسندات", noteMax:6, sousPoints:[
+        {label:"السند أصيل ومناسب للمستوى", noteMax:2},
+        {label:"التعليمات واضحة ومتدرجة", noteMax:2},
+        {label:"تنوع الوضعيات", noteMax:2},
+      ]},
+      {id:3, nom:"معايير مع1/مع2/مع3", noteMax:6, sousPoints:[
+        {label:"مع1 (الملاءمة) محدد وقابل للقياس", noteMax:2},
+        {label:"مع2 (الانسجام) واضح", noteMax:2},
+        {label:"مع3 (الثراء) يتحدى المتقدمين", noteMax:2},
+      ]},
+      {id:4, nom:"جدول إسناد الأعداد", noteMax:3, sousPoints:[
+        {label:"وجود الجدول مكتملاً", noteMax:1.5},
+        {label:"توزيع النقاط منطقي", noteMax:1.5},
+      ]},
+      {id:5, nom:"الملاءمة مع المنهج الرسمي", noteMax:3, sousPoints:[
+        {label:"التوافق مع الدروس المقررة", noteMax:1.5},
+        {label:"مستوى الصعوبة مناسب", noteMax:1.5},
+      ]},
+    ],
+  };
 
-مهمتك: تفقّد هذه ${docLabel} وإعطاء تقرير منظّم دقيق.
+  const weights = CRITERIA_WEIGHTS[CORRECT_DOC_TYPE] || CRITERIA_WEIGHTS.lesson;
+  const totalMax = weights.reduce((s,cr)=>s+cr.noteMax,0);
+  const weightsJSON = JSON.stringify(weights, null, 2);
 
-قيّم كل معيار من 20 وفق هذا الهيكل JSON الدقيق:
+  const SYS_C = `أنت مفتش تربوي تونسي خبير متخصص في تقييم الوثائق البيداغوجية وفق المنهج الرسمي 2025-2026.
+
+مهمتك: تفقّد هذه ${docLabel} وإعطاء تقرير منظّم دقيق للغاية.
+
+الأوزان الرسمية لكل معيار وكل sous-point:
+${weightsJSON}
+
+تعليمات التقييم:
+- قيّم كل sous-point بدقة وفق الأوزان المحددة أعلاه
+- لا تتجاوز noteMax لأي عنصر
+- noteGlobale = مجموع النقاط من ${totalMax} مُحوَّل إلى 100
+- ابحث بشكل خاص عن العبارات الممنوعة: "يلاحظ الأمثلة" / "يشارك شفهياً" / "يستنتج القاعدة"
+
+أجب بهذا JSON الدقيق فقط:
 {
-  "noteGlobale": 75,
-  "appreciation": "جيد",
-  "niveauGlobal": "مقبول للتطبيق مع تحسينات",
+  "noteGlobale": 71.25,
+  "appreciation": "حسن جداً",
+  "niveauGlobal": "قابلة للتطبيق مع تحسينات طفيفة",
+  "tawte2a": "توطئة قصيرة تصف الوثيقة وتقيّمها عموماً بأسلوب المفتش",
   "criteres": [
     {
       "id": 1,
-      "nom": "الأهداف والكفايات",
-      "note": 16,
-      "noteMax": 20,
-      "pourcentage": 80,
+      "nom": "الرأسية والبيانات الإدارية",
+      "note": 2.5,
+      "noteMax": 3,
+      "pourcentage": 83,
       "sousPoints": [
-        {"label": "وضوح الأهداف وقابليتها للقياس","noteObtenue": 7,"noteMax": 8,"commentaire": "الأهداف واضحة لكن..."},
-        {"label": "ارتباط الكفاية بالدرس","noteObtenue": 9,"noteMax": 12,"commentaire": "الكفاية مرتبطة..."}
+        {"label": "وجود المادة والمستوى والمحور والوحدة", "noteObtenue": 0.5, "noteMax": 0.5, "commentaire": "موجود وصحيح"},
+        {"label": "وجود الكفاية النهائية والأفقية", "noteObtenue": 0.5, "noteMax": 1, "commentaire": "الكفاية الأفقية غائبة"}
       ],
-      "pointsForts": ["نقطة قوة 1","نقطة قوة 2"],
-      "pointsAmeliorer": ["نقطة تحسين 1"],
-      "verdict": "جيد — الأهداف واضحة لكن تحتاج تفصيلاً"
+      "pointsForts": ["تحديد المادة والمستوى بدقة"],
+      "pointsAmeliorer": ["إضافة الكفاية الأفقية"],
+      "verdict": "جيد — يحتاج استكمال الكفايات"
     }
   ],
   "synthese": {
-    "pointsForts": ["أقوى 3 نقاط في الوثيقة"],
-    "ikhlalat": ["أبرز الإخلالات"],
-    "tawsiyat": ["توصيات عملية محددة"]
+    "pointsForts": ["أبرز 3 نقاط قوة فعلية"],
+    "ikhlalat": ["أبرز 3 إخلالات فعلية"],
+    "tawsiyat": ["3 توصيات عملية قابلة للتطبيق فوراً"]
   },
-  "decisionFinale": "قابلة للتطبيق مع إصلاح نقطة المحتوى الخاص",
-  "tawte2a": "توطئة قصيرة تلخص الوثيقة"
+  "decisionFinale": "قرار واضح بالموافقة أو الرفض مع الشرط"
 }
 
-معايير التقييم المطلوبة: ${crits.join('، ')}
-أجب بـ JSON فقط بدون أي نص خارجه.`;
+أجب بـ JSON فقط بدون أي نص خارجه. كن دقيقاً في التقييم — لا تكن متساهلاً ولا قاسياً.`;
 
   const USR_C = `فقّد هذه ${docLabel}${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
 
@@ -1976,9 +2050,18 @@ function renderCorrectResult(data, originalText){
     const spHtml=(cr.sousPoints||[]).map(sp=>{
       const spPct=Math.round((sp.noteObtenue/sp.noteMax)*100);
       const spCol=spPct>=70?'#1D9E75':spPct>=40?'#BA7517':'#993C1D';
-      return `<div class="sp-row">
-        <div style="flex:1;color:var(--text)">${sp.label}</div>
-        <span style="font-weight:600;color:${spCol};font-size:11px">${sp.noteObtenue}/${sp.noteMax}</span>
+      const barW=spPct+'%';
+      return `<div class="sp-row" style="flex-direction:column;gap:2px;padding:.3rem 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;direction:rtl">
+          <div style="flex:1;color:var(--text);font-size:11px">${sp.label}</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+            <div style="width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:${barW};height:100%;background:${spCol};border-radius:3px;transition:width .8s"></div>
+            </div>
+            <span style="font-weight:700;color:${spCol};font-size:11px;min-width:36px;text-align:center">${sp.noteObtenue}/${sp.noteMax}</span>
+          </div>
+        </div>
+        ${sp.commentaire?`<div style="font-size:10px;color:var(--muted);direction:rtl;margin-top:1px">${sp.commentaire}</div>`:''}
       </div>`;
     }).join('');
 
@@ -1995,7 +2078,7 @@ function renderCorrectResult(data, originalText){
         <div class="crit-mini-bar">
           <div class="crit-mini-fill" style="width:${cp}%;background:${cc.bg}"></div>
         </div>
-        <div style="font-size:14px;font-weight:700;color:${cc.text};min-width:36px;text-align:center">${cr.note}/${cr.noteMax}</div>
+        <div style="font-size:14px;font-weight:700;color:${cc.text};min-width:48px;text-align:center">${cr.note}<span style="font-size:10px;color:var(--muted);font-weight:400">/${cr.noteMax}</span></div>
         <span style="color:var(--muted);font-size:12px">▾</span>
       </div>
       <div class="crit-body">
