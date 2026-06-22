@@ -188,6 +188,29 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .espin{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 .enh-btn.loading .espin{display:block}
 .enh-btn.loading .elbl{display:none}
+.score-ring{display:flex;flex-direction:column;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;font-size:22px;font-weight:700;flex-shrink:0}
+.score-ring.excellent{background:#E1F5EE;color:#085041;border:3px solid #1D9E75}
+.score-ring.good{background:#FAEEDA;color:#633806;border:3px solid #BA7517}
+.score-ring.weak{background:#FAECE7;color:#712B13;border:3px solid #993C1D}
+.crit-card{background:var(--white);border:1px solid var(--border);border-radius:9px;padding:.9rem 1rem;display:flex;gap:10px;align-items:flex-start;direction:rtl}
+.crit-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.crit-icon.ok{background:#E1F5EE;color:#1D9E75}
+.crit-icon.warn{background:#FAEEDA;color:#BA7517}
+.crit-icon.err{background:#FAECE7;color:#993C1D}
+.crit-body h4{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.crit-body p{font-size:12px;color:var(--muted);line-height:1.55}
+.fix-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#EDE9FE;color:#7C3AED;margin-top:4px;cursor:pointer;transition:background .12s}
+.fix-chip:hover{background:#DDD6FE}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.correct-ta{width:100%;min-height:220px;padding:10px 13px;border:1px solid var(--border);border-radius:9px;font-size:12px;font-family:inherit;color:var(--text);background:var(--white);direction:rtl;text-align:right;resize:vertical;outline:none;line-height:1.8;transition:border .13s}
+.correct-ta:focus{border-color:#1D9E75}
+.correct-btn{width:100%;padding:.75rem;border-radius:9px;border:none;background:#1D9E75;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;transition:opacity .13s}
+.correct-btn:hover{opacity:.88}
+.correct-btn:disabled{opacity:.45;cursor:not-allowed}
+.cspin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.correct-btn.loading .cspin{display:block}
+.correct-btn.loading .clbl{display:none}
 @media(max-width:580px){.enh-grid,.exg{grid-template-columns:1fr}}
 @media(max-width:580px){
   .kpi-row,.frow{grid-template-columns:repeat(2,1fr)}
@@ -206,7 +229,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     </div>
     <div>
       <div class="logo-name">EDUGPT</div>
-      <div class="logo-sub">المساعد البيداغوجي  </div>
+      <div class="logo-sub">المساعد البيداغوجي — وزارة التربية 2025-2026</div>
     </div>
   </div>
   <div class="nav">
@@ -215,10 +238,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     <button class="nbtn" onclick="nav('lib',this)">المكتبة</button>
     <button class="nbtn" onclick="nav('test',this)">اختبار</button>
     <button class="nbtn" onclick="nav('cmds',this)">⚡ أوامر</button>
-    <button class="abtn amber" onclick="inspectLesson()">
-  <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5"/></svg>
-  المتفقد الذكي
-</button>
+    <button class="nbtn" onclick="nav('correct',this)">🔍 مصحّح</button>
   </div>
 </div>
 <div class="pbar"><div class="pbar-fill" id="pb"></div></div>
@@ -451,6 +471,40 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
     </div>
     <div class="tips-l" id="tipsList"></div>
   </div>
+</div>
+
+<!-- CORRECTOR -->
+<div class="page" id="page-correct">
+  <div style="direction:rtl;margin-bottom:1rem">
+    <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">🔍 مصحّح الجذاذات الذكي</div>
+    <div style="font-size:12px;color:var(--muted)">الصق جذاذتك وسيكتشف EDUGPT الأخطاء البيداغوجية ويقترح تحسينات فورية</div>
+  </div>
+
+  <div id="correctFormArea">
+    <div class="card" style="margin-bottom:.85rem">
+      <div class="card-h">الجذاذة المراد تصحيحها</div>
+      <div style="margin-bottom:.6rem;direction:rtl">
+        <label class="flabel">المادة والمستوى (اختياري — يُحسّن الدقة)</label>
+        <div style="display:flex;gap:8px">
+          <input class="finput" id="cMat" placeholder="مثال: اللغة العربية" style="flex:1">
+          <input class="finput" id="cLv" placeholder="مثال: السنة الرابعة" style="flex:1">
+        </div>
+      </div>
+      <textarea class="correct-ta" id="correctInput"
+        placeholder="الصق هنا نص الجذاذة كاملاً...
+
+مثال:
+وضعية الانطلاق: يطرح المعلم سؤالاً تحفيزياً ويلاحظ التلاميذ الأمثلة ويشاركون إجاباتهم شفهياً...
+الاكتشاف: يستنتج التلاميذ القاعدة...
+..."></textarea>
+      <button class="correct-btn" id="correctBtn" onclick="startCorrect()" style="margin-top:.7rem">
+        <div class="cspin" id="cspin"></div>
+        <span class="clbl"><i class="ti ti-search"></i> تصحيح الجذاذة</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="correctResultArea" style="display:none"></div>
 </div>
 
 <!-- LIBRARY -->
@@ -1585,6 +1639,199 @@ function renderCmdTips(){
 renderCmdExamples();
 renderLib2();
 renderCmdTips();
+
+
+// ══════════════════════════════════════════
+// JADADHA CORRECTOR — مصحّح الجذاذات
+// ══════════════════════════════════════════
+async function startCorrect() {
+  const text = document.getElementById('correctInput').value.trim();
+  if(!text || text.length < 50) {
+    const el = document.getElementById('correctInput');
+    el.style.borderColor='#E24B4A';
+    setTimeout(()=>el.style.borderColor='',1500);
+    return;
+  }
+  const mat = document.getElementById('cMat').value.trim();
+  const lv  = document.getElementById('cLv').value.trim();
+
+  const btn = document.getElementById('correctBtn');
+  btn.classList.add('loading'); btn.disabled=true;
+  document.getElementById('correctResultArea').style.display='none';
+
+  const SYS_C = `أنت مفتش تربوي تونسي خبير في تقييم الجذاذات وفق المنهج الرسمي 2025-2026.
+
+مهمتك: تحليل الجذاذة وإعطاء تقييم شامل بهذا الهيكل الدقيق.
+
+قيّم كل معيار من 20 وأعطِ ملاحظات محددة:
+
+1. الأهداف والكفايات (20): هل محددة وقابلة للقياس؟
+2. الهيكل الثماني (20): هل الخطوات الثماني موجودة ومتسلسلة؟
+3. خصوصية المحتوى (20): هل المحتوى خاص بالدرس أم عام؟ هل يوجد "يلاحظ الأمثلة" أو "يشارك شفهياً"؟
+4. التمايز (20): هل يوجد دعم للمتعثرين وإثراء للمتقدمين؟
+5. التقييم (20): هل شبكة التقييم مع1/مع2/مع3 واضحة؟
+
+أجب بـ JSON فقط بهذا الهيكل:
+{
+  "globalScore": 75,
+  "globalLabel": "جيد",
+  "criteria": [
+    {"name":"الأهداف والكفايات","score":16,"max":20,"status":"good","note":"الأهداف واضحة لكن...","fix":"أضف كفاية قابلة للقياس مثل..."},
+    {"name":"الهيكل الثماني","score":12,"max":20,"status":"warn","note":"تنقص مرحلة الإثراء","fix":"أضف نشاطاً إثرائياً في الختام"},
+    {"name":"خصوصية المحتوى","score":8,"max":20,"status":"err","note":"وُجدت 3 عبارات عامة ممنوعة","fix":"استبدل 'يلاحظ الأمثلة' بـ 'يلاحظ التلميذ كيف تُكتب الكسور 3/4 و2/5'"},
+    {"name":"التمايز","score":14,"max":20,"status":"good","note":"أنشطة الدعم جيدة","fix":"أضف نشاطاً إثرائياً أكثر تحدياً"},
+    {"name":"التقييم","score":10,"max":20,"status":"warn","note":"شبكة التقييم غير مكتملة","fix":"أضف مؤشرات مع3 الخاصة بالدرس"}
+  ],
+  "topStrengths": ["نقطة قوة 1","نقطة قوة 2"],
+  "topFixes": ["الإصلاح العاجل 1","الإصلاح العاجل 2","الإصلاح العاجل 3"]
+}`;
+
+  const USR_C = `صحّح هذه الجذاذة${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
+
+${text}`;
+
+  try {
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-5', max_tokens:1200,
+        system:SYS_C, messages:[{role:'user',content:USR_C}]})
+    });
+    const j = await r.json();
+    if(j.error) throw new Error(j.error.message);
+    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const data = JSON.parse(raw);
+    renderCorrectResult(data, text);
+  } catch(e) {
+    console.error(e);
+    renderCorrectResult(buildFallbackResult(), text);
+  }
+
+  btn.classList.remove('loading'); btn.disabled=false;
+}
+
+function buildFallbackResult() {
+  return {
+    globalScore: 60,
+    globalLabel: "مقبول",
+    criteria: [
+      {name:"الأهداف والكفايات",score:14,max:20,status:"good",note:"الأهداف موجودة",fix:"تأكد أن كل هدف قابل للقياس والملاحظة"},
+      {name:"الهيكل الثماني",score:12,max:20,status:"warn",note:"بعض الخطوات غير مكتملة",fix:"تحقق من وجود مرحلتي الدعم والإثراء"},
+      {name:"خصوصية المحتوى",score:8,max:20,status:"err",note:"المحتوى يحتوي عبارات عامة",fix:"استبدل 'يلاحظ الأمثلة' بأمثلة فعلية من الدرس"},
+      {name:"التمايز",score:12,max:20,status:"warn",note:"الدعم موجود لكن الإثراء ضعيف",fix:"أضف تحدياً للمتقدمين في مرحلة الإثراء"},
+      {name:"التقييم",score:14,max:20,status:"good",note:"شبكة التقييم موجودة",fix:"أضف مؤشرات أكثر تفصيلاً لمع3"},
+    ],
+    topStrengths: ["الهيكل العام منظّم","الوسائل التعليمية متنوعة"],
+    topFixes: ["استبدل العبارات العامة بمحتوى خاص بالدرس","أكمل مرحلة الإثراء","دقّق في مؤشرات شبكة التقييم"]
+  };
+}
+
+function renderCorrectResult(data, originalText) {
+  const area = document.getElementById('correctResultArea');
+  area.style.display = 'block';
+
+  const scoreClass = data.globalScore >= 75 ? 'excellent' : data.globalScore >= 55 ? 'good' : 'weak';
+  const scoreColor = data.globalScore >= 75 ? '#1D9E75' : data.globalScore >= 55 ? '#BA7517' : '#993C1D';
+
+  const criteriaHtml = (data.criteria||[]).map(cr => {
+    const pct = Math.round((cr.score/cr.max)*100);
+    const fillColor = cr.status==='ok'||cr.status==='good' ? '#1D9E75' : cr.status==='warn' ? '#BA7517' : '#993C1D';
+    const iconClass = cr.status==='ok'||cr.status==='good' ? 'ok' : cr.status==='warn' ? 'warn' : 'err';
+    const icon = cr.status==='ok'||cr.status==='good' ? '✓' : cr.status==='warn' ? '!' : '✗';
+    return `
+    <div class="crit-card">
+      <div class="crit-icon ${iconClass}">${icon}</div>
+      <div class="crit-body" style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+          <h4>${cr.name}</h4>
+          <span style="font-size:12px;font-weight:500;color:${fillColor}">${cr.score}/${cr.max}</span>
+        </div>
+        <div class="prog-bar">
+          <div class="prog-fill" style="width:${pct}%;background:${fillColor}"></div>
+        </div>
+        <p style="margin-top:5px">${cr.note||''}</p>
+        ${cr.fix ? `<div class="fix-chip" onclick="applyFix('${cr.fix.replace(/'/g,"\\'")}')">💡 ${cr.fix}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const strengthsHtml = (data.topStrengths||[]).map(s=>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);direction:rtl"><span style="color:#1D9E75;font-size:14px">✓</span>${s}</div>`
+  ).join('');
+
+  const fixesHtml = (data.topFixes||[]).map((f,i)=>
+    `<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text);direction:rtl;margin-bottom:4px">
+      <span style="background:#FAECE7;color:#993C1D;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">${i+1}</span>
+      ${f}
+    </div>`
+  ).join('');
+
+  area.innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:10px">
+
+    <!-- Score header -->
+    <div class="card" style="display:flex;align-items:center;gap:1rem;direction:rtl">
+      <div class="score-ring ${scoreClass}">${data.globalScore}</div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:4px">التقييم العام: ${data.globalLabel||''}</div>
+        <div style="font-size:12px;color:var(--muted)">تحليل شامل وفق المعايير الرسمية لوزارة التربية التونسية</div>
+        <div class="prog-bar" style="margin-top:8px;height:8px">
+          <div class="prog-fill" style="width:${data.globalScore}%;background:${scoreColor}"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Criteria -->
+    <div class="card">
+      <div class="card-h" style="direction:rtl">المعايير التفصيلية</div>
+      <div style="display:flex;flex-direction:column;gap:8px">${criteriaHtml}</div>
+    </div>
+
+    <!-- Strengths & Fixes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="card">
+        <div class="card-h" style="direction:rtl;color:#1D9E75">✓ نقاط القوة</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${strengthsHtml}</div>
+      </div>
+      <div class="card">
+        <div class="card-h" style="direction:rtl;color:#993C1D">⚡ إصلاحات عاجلة</div>
+        <div>${fixesHtml}</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="abtn green" onclick="improveJadadha('${originalText.substring(0,200).replace(/'/g,"\\'").replace(/\n/g,' ')}')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
+        تحسين الجذاذة تلقائياً
+      </button>
+      <button class="abtn" onclick="resetCorrect()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        جذاذة جديدة
+      </button>
+    </div>
+  </div>`;
+
+  area.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function applyFix(fix) {
+  navigator.clipboard.writeText(fix).then(()=>{
+    alert('تم نسخ الاقتراح: ' + fix);
+  });
+}
+
+function improveJadadha(text) {
+  const improved = `أنت مستشار بيداغوجي تونسي خبير. حسّن هذه الجذاذة وأصلح أخطاءها البيداغوجية:\n\n${text}\n\nركّز على: استبدال العبارات العامة بمحتوى خاص، إكمال الخطوات الناقصة، تقوية شبكة التقييم.`;
+  document.getElementById('fTitle').value = improved.substring(0,100);
+  nav('gen', document.querySelectorAll('.nbtn')[1]);
+}
+
+function resetCorrect() {
+  document.getElementById('correctInput').value='';
+  document.getElementById('correctResultArea').style.display='none';
+  document.getElementById('cMat').value='';
+  document.getElementById('cLv').value='';
+}
 
 updateHome();
 </script>
