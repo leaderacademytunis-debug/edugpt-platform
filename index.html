@@ -1939,50 +1939,17 @@ async function startCorrect() {
   const totalMax = weights.reduce((s,cr)=>s+cr.noteMax,0);
   const weightsJSON = JSON.stringify(weights, null, 2);
 
-  const SYS_C = `أنت مفتش تربوي تونسي خبير متخصص في تقييم الوثائق البيداغوجية وفق المنهج الرسمي 2025-2026.
+  const SYS_C = `أنت مفتش تربوي تونسي خبير. أجب بـ JSON فقط بدون أي نص خارجه.
 
-مهمتك: تفقّد هذه ${docLabel} وإعطاء تقرير منظّم دقيق للغاية.
-
-الأوزان الرسمية لكل معيار وكل sous-point:
+قيّم الوثيقة وفق هذه الأوزان بدقة — لا تتجاوز noteMax لأي عنصر:
 ${weightsJSON}
 
-تعليمات التقييم:
-- قيّم كل sous-point بدقة وفق الأوزان المحددة أعلاه
-- لا تتجاوز noteMax لأي عنصر
-- noteGlobale = مجموع النقاط من ${totalMax} مُحوَّل إلى 100
-- ابحث بشكل خاص عن العبارات الممنوعة: "يلاحظ الأمثلة" / "يشارك شفهياً" / "يستنتج القاعدة"
+المجموع الكلي: ${totalMax} نقطة. noteGlobale = (المجموع/الكلي×100).
 
-أجب بهذا JSON الدقيق فقط:
-{
-  "noteGlobale": 71.25,
-  "appreciation": "حسن جداً",
-  "niveauGlobal": "قابلة للتطبيق مع تحسينات طفيفة",
-  "tawte2a": "توطئة قصيرة تصف الوثيقة وتقيّمها عموماً بأسلوب المفتش",
-  "criteres": [
-    {
-      "id": 1,
-      "nom": "الرأسية والبيانات الإدارية",
-      "note": 2.5,
-      "noteMax": 3,
-      "pourcentage": 83,
-      "sousPoints": [
-        {"label": "وجود المادة والمستوى والمحور والوحدة", "noteObtenue": 0.5, "noteMax": 0.5, "commentaire": "موجود وصحيح"},
-        {"label": "وجود الكفاية النهائية والأفقية", "noteObtenue": 0.5, "noteMax": 1, "commentaire": "الكفاية الأفقية غائبة"}
-      ],
-      "pointsForts": ["تحديد المادة والمستوى بدقة"],
-      "pointsAmeliorer": ["إضافة الكفاية الأفقية"],
-      "verdict": "جيد — يحتاج استكمال الكفايات"
-    }
-  ],
-  "synthese": {
-    "pointsForts": ["أبرز 3 نقاط قوة فعلية"],
-    "ikhlalat": ["أبرز 3 إخلالات فعلية"],
-    "tawsiyat": ["3 توصيات عملية قابلة للتطبيق فوراً"]
-  },
-  "decisionFinale": "قرار واضح بالموافقة أو الرفض مع الشرط"
-}
+ابحث عن العبارات الممنوعة: "يلاحظ الأمثلة" "يشارك شفهياً" "يستنتج القاعدة" وانقص منها.
 
-أجب بـ JSON فقط بدون أي نص خارجه. كن دقيقاً في التقييم — لا تكن متساهلاً ولا قاسياً.`;
+أجب بهذا JSON فقط — اجعل كل نص قصيراً (جملة واحدة):
+{"noteGlobale":71,"appreciation":"حسن جداً","niveauGlobal":"قابل للتطبيق","tawte2a":"توطئة موجزة","criteres":[{"id":1,"nom":"اسم المعيار","note":2.5,"noteMax":3,"pourcentage":83,"sousPoints":[{"label":"البند","noteObtenue":0.5,"noteMax":0.5,"commentaire":"ملاحظة قصيرة"}],"pointsForts":["نقطة"],"pointsAmeliorer":["تحسين"],"verdict":"حكم قصير"}],"synthese":{"pointsForts":["ق1","ق2","ق3"],"ikhlalat":["إ1","إ2"],"tawsiyat":["ت1","ت2","ت3"]},"decisionFinale":"القرار النهائي"}`;
 
   const USR_C = `فقّد هذه ${docLabel}${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
 
@@ -1991,7 +1958,7 @@ ${text}`;
   try {
     const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,system:SYS_C,messages:[{role:'user',content:USR_C}]})
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,system:SYS_C,messages:[{role:'user',content:USR_C}]})
     });
     const j=await r.json();
     if(j.error) throw new Error(j.error.message);
