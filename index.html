@@ -1958,40 +1958,80 @@ async function startCorrect() {
 الوثيقة:
 ${text.substring(0, 3000)}`;
 
+  // Show progress
+  const area = document.getElementById('correctResultArea');
+  area.style.display='block';
+  area.innerHTML=`<div class="card" style="direction:rtl;text-align:center;padding:2rem">
+    <div class="spin" style="margin:0 auto 1rem"></div>
+    <div style="font-size:13px;color:var(--muted)">جاري التحليل البيداغوجي... قد يستغرق 20-30 ثانية</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:.5rem" id="progressTxt">📖 قراءة الوثيقة...</div>
+  </div>`;
+
   try {
-    const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,system:SYS_C,messages:[{role:'user',content:USR_C}]})
+    // STEP 1: Get qualitative analysis (no JSON, just text)
+    document.getElementById('progressTxt').textContent = '🔍 تحليل المعايير...';
+    
+    const step1Prompt = `أنت مفتش تربوي تونسي. حلّل هذه ${docLabel}${mat?' في '+mat:''}${lv?' '+lv:''} وأعطِ تقريراً موجزاً.
+
+الوثيقة:
+${text.substring(0, 2500)}
+
+قيّم هذه المعايير بنقاط من noteMax المحدد:
+${weights.map(w=>`- ${w.nom} (من ${w.noteMax}): ${w.sousPoints.map(s=>s.label+'['+s.noteMax+']').join(', ')}`).join('
+')}
+
+أعطِ لكل sous-point نقطة دقيقة. ابحث عن العبارات الممنوعة: "يلاحظ الأمثلة" "يشارك شفهياً" "يستنتج القاعدة".
+
+أجب بهذا JSON المكتمل فقط — كل commentaire جملة قصيرة جداً:
+{"noteGlobale":75,"appreciation":"جيد","niveauGlobal":"قابل","tawte2a":"وصف","criteres":[{"id":1,"nom":"المعيار","note":2,"noteMax":3,"pourcentage":67,"sousPoints":[{"label":"البند","noteObtenue":0.5,"noteMax":0.5,"commentaire":"ملاحظة"}],"pointsForts":["نقطة"],"pointsAmeliorer":["تحسين"],"verdict":"حكم"}],"synthese":{"pointsForts":["ق1","ق2"],"ikhlalat":["إ1"],"tawsiyat":["ت1","ت2"]},"decisionFinale":"القرار"}`;
+
+    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:3000,
+        messages:[{role:'user', content:step1Prompt}]
+      })
     });
-    const j=await r.json();
+    const j = await r.json();
     if(j.error) throw new Error(j.error.message);
-    let raw=(j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-    // Robust JSON repair if truncated
+    
+    document.getElementById('progressTxt').textContent = '📊 بناء التقرير...';
+    
+    let raw = (j.content||[]).map(b=>b.text||'').join('').trim();
+    
+    // Extract JSON from response
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('لم يتم إنتاج تقرير — حاول مجدداً');
+    raw = jsonMatch[0];
+    
+    // Repair if needed
     let data;
     try {
       data = JSON.parse(raw);
     } catch(parseErr) {
-      // Try to repair truncated JSON
-      raw = raw.replace(/,\s*$/, ''); // remove trailing comma
-      // Close any open arrays/objects
-      let opens = (raw.match(/\[/g)||[]).length - (raw.match(/\]/g)||[]).length;
-      let openObj = (raw.match(/\{/g)||[]).length - (raw.match(/\}/g)||[]).length;
-      for(let i=0;i<opens;i++) raw += ']';
-      for(let i=0;i<openObj;i++) raw += '}';
-      try {
-        data = JSON.parse(raw);
-      } catch(e2) {
-        throw new Error('JSON غير مكتمل — حاول مع نص أقصر من الجذاذة');
-      }
+      // Auto-repair: close open brackets
+      let fix = raw.replace(/,(\s*[}\]])/g,'$1'); // remove trailing commas
+      const opens = (fix.match(/\[/g)||[]).length-(fix.match(/\]/g)||[]).length;
+      const openO = (fix.match(/\{/g)||[]).length-(fix.match(/\}/g)||[]).length;
+      for(let i=0;i<Math.min(opens,5);i++) fix+=']';
+      for(let i=0;i<Math.min(openO,5);i++) fix+='}';
+      data = JSON.parse(fix);
     }
+    
+    // Ensure required fields
+    data.noteGlobale = data.noteGlobale||0;
+    data.criteres = data.criteres||[];
+    data.synthese = data.synthese||{pointsForts:[],ikhlalat:[],tawsiyat:[]};
+    
     renderCorrectResult(data, text);
+    
   } catch(e){
-    console.error(e);
-    // Show error clearly
-    document.getElementById('correctResultArea').style.display='block';
-    document.getElementById('correctResultArea').innerHTML=`<div class="card" style="direction:rtl;color:#712B13;background:#FAECE7;border-color:#993C1D">
-      <strong>⚠️ خطأ في التحليل:</strong> ${e.message}<br>
-      <small style="color:var(--muted)">تأكد من وجود نص كافٍ (أكثر من 100 كلمة)</small>
+    console.error('Corrector error:', e);
+    area.innerHTML=`<div class="card" style="direction:rtl;background:#FAECE7;border-color:#993C1D">
+      <div style="color:#712B13;font-size:13px;font-weight:500;margin-bottom:.5rem">⚠️ ${e.message}</div>
+      <div style="font-size:12px;color:var(--muted)">نصائح: تأكد أن الجذاذة تحتوي على أكثر من 200 كلمة، أو اقطع النص إلى نصفين وحلّل كل نصف بشكل منفصل.</div>
+      <button onclick="resetCorrect()" style="margin-top:.75rem;padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-family:inherit;cursor:pointer;font-size:12px">↩ المحاولة مجدداً</button>
     </div>`;
   }
   btn.classList.remove('loading'); btn.disabled=false;
