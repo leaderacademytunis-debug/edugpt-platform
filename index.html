@@ -211,6 +211,26 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .cspin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 .correct-btn.loading .cspin{display:block}
 .correct-btn.loading .clbl{display:none}
+.doctype-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .12s}
+.doctype-btn.on{background:var(--gl);color:var(--gd);border-color:var(--gm);font-weight:500}
+.crit-sel{padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .12s;text-align:right}
+.crit-sel.on{background:var(--gl);color:var(--gd);border-color:var(--gm);font-weight:500}
+.gauge-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
+.gauge-wrap svg{width:110px;height:110px;transform:rotate(-90deg)}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.crit-row{background:var(--white);border:1px solid var(--border);border-radius:9px;overflow:hidden;transition:all .2s}
+.crit-head{display:flex;align-items:center;gap:8px;padding:.7rem .9rem;cursor:pointer;direction:rtl}
+.crit-head:hover{background:var(--bg)}
+.crit-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff}
+.crit-mini-bar{width:50px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;flex-shrink:0}
+.crit-mini-fill{height:100%;border-radius:3px}
+.crit-body{padding:.75rem .9rem;background:var(--white);border-top:1px solid var(--border);direction:rtl;display:none}
+.crit-body.open{display:block}
+.sp-row{display:flex;align-items:center;gap:6px;font-size:11px;padding:.25rem 0}
+.tag-green{font-size:10px;padding:2px 7px;border-radius:10px;background:#E1F5EE;color:#085041}
+.tag-red{font-size:10px;padding:2px 7px;border-radius:10px;background:#FAECE7;color:#712B13}
+.tag-amber{font-size:10px;padding:2px 7px;border-radius:10px;background:#FAEEDA;color:#633806}
+.remediation-box{background:var(--bl);border:1px solid var(--b);border-radius:9px;padding:.85rem 1rem;direction:rtl}
 @media(max-width:580px){.enh-grid,.exg{grid-template-columns:1fr}}
 @media(max-width:580px){
   .kpi-row,.frow{grid-template-columns:repeat(2,1fr)}
@@ -473,61 +493,93 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
   </div>
 </div>
 
-<!-- CORRECTOR -->
+<!-- CORRECTOR — Enhanced from Inspector.tsx -->
 <div class="page" id="page-correct">
-  <div style="direction:rtl;margin-bottom:1rem">
-    <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px">🔍 مصحّح الجذاذات الذكي</div>
-    <div style="font-size:12px;color:var(--muted)">الصق جذاذتك وسيكتشف EDUGPT الأخطاء البيداغوجية ويقترح تحسينات فورية</div>
-  </div>
 
   <div id="correctFormArea">
-    <div class="card" style="margin-bottom:.85rem">
-      <div class="card-h">الجذاذة المراد تصحيحها</div>
+    <!-- Header -->
+    <div style="direction:rtl;margin-bottom:1rem">
+      <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px">🔍 المتفقد الذكي</div>
+      <div style="font-size:12px;color:var(--muted)">تحليل بيداغوجي شامل — نقاط من 20 لكل معيار + خطة علاجية</div>
+    </div>
 
-      <!-- Upload zone -->
-      <div id="uploadZone" onclick="document.getElementById('fileInput').click()"
-        style="border:2px dashed var(--border);border-radius:10px;padding:1.4rem;text-align:center;cursor:pointer;margin-bottom:.85rem;transition:all .15s;background:var(--bg);direction:rtl">
-        <div style="font-size:26px;margin-bottom:.3rem">📄</div>
-        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">اسحب ملف الجذاذة هنا أو اضغط للاختيار</div>
-        <div style="font-size:11px;color:var(--muted)">يدعم: Word (.docx .doc) · PDF · نص عادي (.txt)</div>
-        <input type="file" id="fileInput" accept=".docx,.doc,.pdf,.txt" style="display:none" onchange="handleFile(this)">
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
 
-      <!-- Divider -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.85rem">
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-        <span style="font-size:11px;color:var(--muted)">أو الصق النص مباشرة</span>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-      </div>
+      <!-- LEFT: Document input -->
+      <div class="card">
+        <div class="card-h">1. الوثيقة المراد تفقّدها</div>
 
-      <!-- Meta -->
-      <div style="margin-bottom:.65rem;direction:rtl">
-        <label class="flabel">المادة والمستوى (اختياري — يُحسّن الدقة)</label>
-        <div style="display:flex;gap:8px">
-          <input class="finput" id="cMat" placeholder="مثال: اللغة العربية" style="flex:1">
-          <input class="finput" id="cLv" placeholder="مثال: السنة الرابعة" style="flex:1">
+        <!-- Doc type tabs -->
+        <div style="display:flex;gap:5px;margin-bottom:.75rem;direction:rtl">
+          <button class="doctype-btn on" data-v="lesson" onclick="selDocType(this)">📋 جذاذة درس</button>
+          <button class="doctype-btn" data-v="test" onclick="selDocType(this)">📝 اختبار</button>
+          <button class="doctype-btn" data-v="eval" onclick="selDocType(this)">📊 شبكة تقييم</button>
+        </div>
+
+        <!-- Upload zone -->
+        <div id="uploadZone" onclick="document.getElementById('fileInput').click()"
+          style="border:2px dashed var(--border);border-radius:9px;padding:1.1rem;text-align:center;cursor:pointer;margin-bottom:.75rem;transition:all .15s;background:var(--bg);direction:rtl">
+          <div style="font-size:22px;margin-bottom:.25rem">📄</div>
+          <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px">اسحب ملفك هنا أو اضغط للاختيار</div>
+          <div style="font-size:10px;color:var(--muted)">Word (.docx .doc) · PDF · نص (.txt)</div>
+          <input type="file" id="fileInput" accept=".docx,.doc,.pdf,.txt" style="display:none" onchange="handleFile(this)">
+        </div>
+
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:.6rem">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:10px;color:var(--muted)">أو الصق النص</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <textarea class="correct-ta" id="correctInput" style="min-height:140px"
+          placeholder="الصق نص الوثيقة هنا..."></textarea>
+
+        <div id="fileBadge" style="display:none;margin-top:.4rem;padding:5px 9px;background:var(--gl);border:1px solid var(--gm);border-radius:6px;font-size:11px;color:var(--gd);direction:rtl;align-items:center;gap:5px">
+          <span>📄</span><span id="fileName" style="flex:1"></span>
+          <span style="color:var(--muted)">تم التحميل ✓</span>
+          <button onclick="clearFile()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px">✕</button>
         </div>
       </div>
 
-      <textarea class="correct-ta" id="correctInput"
-        placeholder="الصق هنا نص الجذاذة كاملاً...
+      <!-- RIGHT: Options -->
+      <div class="card">
+        <div class="card-h">2. خيارات التفقّد</div>
 
-مثال:
-وضعية الانطلاق: يطرح المعلم سؤالاً تحفيزياً...
-الاكتشاف: يستنتج التلاميذ القاعدة..."></textarea>
+        <div style="margin-bottom:.75rem;direction:rtl">
+          <label class="flabel">المادة والمستوى</label>
+          <div style="display:flex;gap:6px;margin-bottom:.5rem">
+            <input class="finput" id="cMat" placeholder="مثال: اللغة العربية" style="flex:1;font-size:12px">
+            <input class="finput" id="cLv" placeholder="مثال: السنة الرابعة" style="flex:1;font-size:12px">
+          </div>
+        </div>
 
-      <!-- File badge -->
-      <div id="fileBadge" style="display:none;margin-top:.5rem;padding:6px 10px;background:var(--gl);border:1px solid var(--gm);border-radius:7px;font-size:12px;color:var(--gd);direction:rtl;align-items:center;gap:6px">
-        <span>📄</span>
-        <span id="fileName" style="flex:1"></span>
-        <span style="color:var(--muted)">تم تحميل الملف ✓</span>
-        <button onclick="clearFile()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px">✕</button>
+        <div style="direction:rtl;margin-bottom:.75rem">
+          <label class="flabel">معايير التفقّد (اختر ما تريد التركيز عليه)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+            <button class="crit-sel on" data-v="الأهداف والكفايات" onclick="togCrit(this)">🎯 الأهداف والكفايات</button>
+            <button class="crit-sel on" data-v="الهيكل الثماني" onclick="togCrit(this)">🏗️ الهيكل الثماني</button>
+            <button class="crit-sel on" data-v="خصوصية المحتوى" onclick="togCrit(this)">✍️ خصوصية المحتوى</button>
+            <button class="crit-sel on" data-v="التمايز" onclick="togCrit(this)">🎓 التمايز</button>
+            <button class="crit-sel on" data-v="التقييم ومع1/مع2/مع3" onclick="togCrit(this)">📊 التقييم</button>
+            <button class="crit-sel" data-v="الوسائل التعليمية" onclick="togCrit(this)">🖊️ الوسائل</button>
+            <button class="crit-sel" data-v="إدارة الوقت" onclick="togCrit(this)">⏱️ إدارة الوقت</button>
+            <button class="crit-sel" data-v="التوافق مع المنهج" onclick="togCrit(this)">📚 المنهج الرسمي</button>
+          </div>
+        </div>
+
+        <div style="direction:rtl;margin-bottom:.75rem">
+          <label class="flabel">نوع التقرير</label>
+          <div style="display:flex;gap:5px">
+            <button class="crit-sel on" data-v="structured" id="repStructured" onclick="selRepType(this)">📊 تقرير منظّم</button>
+            <button class="crit-sel" data-v="detailed" id="repDetailed" onclick="selRepType(this)">📝 تقرير مفصّل</button>
+          </div>
+        </div>
+
+        <button class="correct-btn" id="correctBtn" onclick="startCorrect()">
+          <div class="cspin" id="cspin"></div>
+          <span class="clbl">🔍 ابدأ التفقّد الآن</span>
+        </button>
       </div>
-
-      <button class="correct-btn" id="correctBtn" onclick="startCorrect()" style="margin-top:.75rem">
-        <div class="cspin" id="cspin"></div>
-        <span class="clbl">🔍 تصحيح الجذاذة</span>
-      </button>
     </div>
   </div>
 
@@ -1789,196 +1841,268 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ══════════════════════════════════════════
-// JADADHA CORRECTOR — مصحّح الجذاذات
+// JADADHA CORRECTOR — Enhanced Inspector
 // ══════════════════════════════════════════
+let CORRECT_DOC_TYPE = 'lesson';
+let CORRECT_REP_TYPE = 'structured';
+let SELECTED_CRIT = ['الأهداف والكفايات','الهيكل الثماني','خصوصية المحتوى','التمايز','التقييم ومع1/مع2/مع3'];
+
+function selDocType(el){ document.querySelectorAll('.doctype-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); CORRECT_DOC_TYPE=el.dataset.v; }
+function selRepType(el){ document.querySelectorAll('.crit-sel[data-v="structured"],.crit-sel[data-v="detailed"]').forEach(b=>b.classList.remove('on')); el.classList.add('on'); CORRECT_REP_TYPE=el.dataset.v; }
+function togCrit(el){
+  const v=el.dataset.v;
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!SELECTED_CRIT.includes(v)) SELECTED_CRIT.push(v); }
+  else { SELECTED_CRIT=SELECTED_CRIT.filter(x=>x!==v); }
+}
+
 async function startCorrect() {
   const text = document.getElementById('correctInput').value.trim();
-  if(!text || text.length < 50) {
-    const el = document.getElementById('correctInput');
-    el.style.borderColor='#E24B4A';
-    setTimeout(()=>el.style.borderColor='',1500);
-    return;
+  if(!text || text.length < 30) {
+    const el=document.getElementById('correctInput');
+    el.style.borderColor='#E24B4A'; setTimeout(()=>el.style.borderColor='',1500); return;
   }
   const mat = document.getElementById('cMat').value.trim();
   const lv  = document.getElementById('cLv').value.trim();
+  const crits = SELECTED_CRIT.length > 0 ? SELECTED_CRIT : ['الأهداف','الهيكل','المحتوى','التمايز','التقييم'];
 
-  const btn = document.getElementById('correctBtn');
+  const btn=document.getElementById('correctBtn');
   btn.classList.add('loading'); btn.disabled=true;
   document.getElementById('correctResultArea').style.display='none';
 
-  const SYS_C = `أنت مفتش تربوي تونسي خبير في تقييم الجذاذات وفق المنهج الرسمي 2025-2026.
+  const docTypeLabels = {lesson:'جذاذة درس',test:'اختبار',eval:'شبكة تقييم'};
+  const docLabel = docTypeLabels[CORRECT_DOC_TYPE]||'وثيقة تعليمية';
 
-مهمتك: تحليل الجذاذة وإعطاء تقييم شامل بهذا الهيكل الدقيق.
+  const SYS_C = `أنت مفتش تربوي تونسي خبير متخصص في تقييم الوثائق البيداغوجية للمرحلة الابتدائية وفق المنهج الرسمي 2025-2026.
 
-قيّم كل معيار من 20 وأعطِ ملاحظات محددة:
+مهمتك: تفقّد هذه ${docLabel} وإعطاء تقرير منظّم دقيق.
 
-1. الأهداف والكفايات (20): هل محددة وقابلة للقياس؟
-2. الهيكل الثماني (20): هل الخطوات الثماني موجودة ومتسلسلة؟
-3. خصوصية المحتوى (20): هل المحتوى خاص بالدرس أم عام؟ هل يوجد "يلاحظ الأمثلة" أو "يشارك شفهياً"؟
-4. التمايز (20): هل يوجد دعم للمتعثرين وإثراء للمتقدمين؟
-5. التقييم (20): هل شبكة التقييم مع1/مع2/مع3 واضحة؟
-
-أجب بـ JSON فقط بهذا الهيكل:
+قيّم كل معيار من 20 وفق هذا الهيكل JSON الدقيق:
 {
-  "globalScore": 75,
-  "globalLabel": "جيد",
-  "criteria": [
-    {"name":"الأهداف والكفايات","score":16,"max":20,"status":"good","note":"الأهداف واضحة لكن...","fix":"أضف كفاية قابلة للقياس مثل..."},
-    {"name":"الهيكل الثماني","score":12,"max":20,"status":"warn","note":"تنقص مرحلة الإثراء","fix":"أضف نشاطاً إثرائياً في الختام"},
-    {"name":"خصوصية المحتوى","score":8,"max":20,"status":"err","note":"وُجدت 3 عبارات عامة ممنوعة","fix":"استبدل 'يلاحظ الأمثلة' بـ 'يلاحظ التلميذ كيف تُكتب الكسور 3/4 و2/5'"},
-    {"name":"التمايز","score":14,"max":20,"status":"good","note":"أنشطة الدعم جيدة","fix":"أضف نشاطاً إثرائياً أكثر تحدياً"},
-    {"name":"التقييم","score":10,"max":20,"status":"warn","note":"شبكة التقييم غير مكتملة","fix":"أضف مؤشرات مع3 الخاصة بالدرس"}
+  "noteGlobale": 75,
+  "appreciation": "جيد",
+  "niveauGlobal": "مقبول للتطبيق مع تحسينات",
+  "criteres": [
+    {
+      "id": 1,
+      "nom": "الأهداف والكفايات",
+      "note": 16,
+      "noteMax": 20,
+      "pourcentage": 80,
+      "sousPoints": [
+        {"label": "وضوح الأهداف وقابليتها للقياس","noteObtenue": 7,"noteMax": 8,"commentaire": "الأهداف واضحة لكن..."},
+        {"label": "ارتباط الكفاية بالدرس","noteObtenue": 9,"noteMax": 12,"commentaire": "الكفاية مرتبطة..."}
+      ],
+      "pointsForts": ["نقطة قوة 1","نقطة قوة 2"],
+      "pointsAmeliorer": ["نقطة تحسين 1"],
+      "verdict": "جيد — الأهداف واضحة لكن تحتاج تفصيلاً"
+    }
   ],
-  "topStrengths": ["نقطة قوة 1","نقطة قوة 2"],
-  "topFixes": ["الإصلاح العاجل 1","الإصلاح العاجل 2","الإصلاح العاجل 3"]
-}`;
+  "synthese": {
+    "pointsForts": ["أقوى 3 نقاط في الوثيقة"],
+    "ikhlalat": ["أبرز الإخلالات"],
+    "tawsiyat": ["توصيات عملية محددة"]
+  },
+  "decisionFinale": "قابلة للتطبيق مع إصلاح نقطة المحتوى الخاص",
+  "tawte2a": "توطئة قصيرة تلخص الوثيقة"
+}
 
-  const USR_C = `صحّح هذه الجذاذة${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
+معايير التقييم المطلوبة: ${crits.join('، ')}
+أجب بـ JSON فقط بدون أي نص خارجه.`;
+
+  const USR_C = `فقّد هذه ${docLabel}${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
 
 ${text}`;
 
   try {
-    const r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-5', max_tokens:1200,
-        system:SYS_C, messages:[{role:'user',content:USR_C}]})
+    const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,system:SYS_C,messages:[{role:'user',content:USR_C}]})
     });
-    const j = await r.json();
+    const j=await r.json();
     if(j.error) throw new Error(j.error.message);
-    const raw = (j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-    const data = JSON.parse(raw);
+    const raw=(j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    const data=JSON.parse(raw);
     renderCorrectResult(data, text);
-  } catch(e) {
+  } catch(e){
     console.error(e);
-    renderCorrectResult(buildFallbackResult(), text);
+    // Show error clearly
+    document.getElementById('correctResultArea').style.display='block';
+    document.getElementById('correctResultArea').innerHTML=`<div class="card" style="direction:rtl;color:#712B13;background:#FAECE7;border-color:#993C1D">
+      <strong>⚠️ خطأ في التحليل:</strong> ${e.message}<br>
+      <small style="color:var(--muted)">تأكد من وجود نص كافٍ (أكثر من 100 كلمة)</small>
+    </div>`;
   }
-
   btn.classList.remove('loading'); btn.disabled=false;
 }
 
-function buildFallbackResult() {
-  return {
-    globalScore: 60,
-    globalLabel: "مقبول",
-    criteria: [
-      {name:"الأهداف والكفايات",score:14,max:20,status:"good",note:"الأهداف موجودة",fix:"تأكد أن كل هدف قابل للقياس والملاحظة"},
-      {name:"الهيكل الثماني",score:12,max:20,status:"warn",note:"بعض الخطوات غير مكتملة",fix:"تحقق من وجود مرحلتي الدعم والإثراء"},
-      {name:"خصوصية المحتوى",score:8,max:20,status:"err",note:"المحتوى يحتوي عبارات عامة",fix:"استبدل 'يلاحظ الأمثلة' بأمثلة فعلية من الدرس"},
-      {name:"التمايز",score:12,max:20,status:"warn",note:"الدعم موجود لكن الإثراء ضعيف",fix:"أضف تحدياً للمتقدمين في مرحلة الإثراء"},
-      {name:"التقييم",score:14,max:20,status:"good",note:"شبكة التقييم موجودة",fix:"أضف مؤشرات أكثر تفصيلاً لمع3"},
-    ],
-    topStrengths: ["الهيكل العام منظّم","الوسائل التعليمية متنوعة"],
-    topFixes: ["استبدل العبارات العامة بمحتوى خاص بالدرس","أكمل مرحلة الإثراء","دقّق في مؤشرات شبكة التقييم"]
-  };
+function getScoreColor(pct){
+  if(pct>=80) return {bg:'#1D9E75',light:'#E1F5EE',border:'#5DCAA5',text:'#085041'};
+  if(pct>=60) return {bg:'#BA7517',light:'#FAEEDA',border:'#D4A843',text:'#633806'};
+  if(pct>=40) return {bg:'#D85A30',light:'#FAECE7',border:'#E07050',text:'#712B13'};
+  return {bg:'#993C1D',light:'#FAECE7',border:'#C04020',text:'#5C1A08'};
 }
 
-function renderCorrectResult(data, originalText) {
-  const area = document.getElementById('correctResultArea');
-  area.style.display = 'block';
+function buildGaugeSVG(score, max, color){
+  const pct=Math.round((score/max)*100);
+  const r=45, circ=2*Math.PI*r;
+  const offset=circ-(pct/100)*circ;
+  return `<div class="gauge-wrap">
+    <svg viewBox="0 0 100 100" style="width:110px;height:110px;transform:rotate(-90deg)">
+      <circle cx="50" cy="50" r="${r}" stroke="#E5E7EB" stroke-width="8" fill="none"/>
+      <circle cx="50" cy="50" r="${r}" stroke="${color}" stroke-width="8" fill="none"
+        stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
+        style="transition:stroke-dashoffset 1.5s ease"/>
+    </svg>
+    <div class="gauge-center">
+      <span style="font-size:22px;font-weight:900;color:${color}">${score}</span>
+      <span style="font-size:10px;color:var(--muted)">/ ${max}</span>
+    </div>
+  </div>`;
+}
 
-  const scoreClass = data.globalScore >= 75 ? 'excellent' : data.globalScore >= 55 ? 'good' : 'weak';
-  const scoreColor = data.globalScore >= 75 ? '#1D9E75' : data.globalScore >= 55 ? '#BA7517' : '#993C1D';
+function renderCorrectResult(data, originalText){
+  const area=document.getElementById('correctResultArea');
+  area.style.display='block';
+  const pct=data.noteGlobale||0;
+  const gc=getScoreColor(pct);
 
-  const criteriaHtml = (data.criteria||[]).map(cr => {
-    const pct = Math.round((cr.score/cr.max)*100);
-    const fillColor = cr.status==='ok'||cr.status==='good' ? '#1D9E75' : cr.status==='warn' ? '#BA7517' : '#993C1D';
-    const iconClass = cr.status==='ok'||cr.status==='good' ? 'ok' : cr.status==='warn' ? 'warn' : 'err';
-    const icon = cr.status==='ok'||cr.status==='good' ? '✓' : cr.status==='warn' ? '!' : '✗';
-    return `
-    <div class="crit-card">
-      <div class="crit-icon ${iconClass}">${icon}</div>
-      <div class="crit-body" style="flex:1">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-          <h4>${cr.name}</h4>
-          <span style="font-size:12px;font-weight:500;color:${fillColor}">${cr.score}/${cr.max}</span>
+  const emoji = pct>=80?'🏆':pct>=60?'🌟':pct>=40?'👍':'⚠️';
+
+  // Criteria rows
+  const critsHtml=(data.criteres||[]).map(cr=>{
+    const cp=cr.pourcentage||Math.round((cr.note/cr.noteMax)*100);
+    const cc=getScoreColor(cp);
+    const spHtml=(cr.sousPoints||[]).map(sp=>{
+      const spPct=Math.round((sp.noteObtenue/sp.noteMax)*100);
+      const spCol=spPct>=70?'#1D9E75':spPct>=40?'#BA7517':'#993C1D';
+      return `<div class="sp-row">
+        <div style="flex:1;color:var(--text)">${sp.label}</div>
+        <span style="font-weight:600;color:${spCol};font-size:11px">${sp.noteObtenue}/${sp.noteMax}</span>
+      </div>`;
+    }).join('');
+
+    const pfsHtml=(cr.pointsForts||[]).map(p=>`<span class="tag-green">${p}</span>`).join(' ');
+    const pamsHtml=(cr.pointsAmeliorer||[]).map(p=>`<span class="tag-red">${p}</span>`).join(' ');
+
+    return `<div class="crit-row">
+      <div class="crit-head" onclick="togCritResult(this)">
+        <div class="crit-badge" style="background:${cc.bg}">${cr.id}</div>
+        <div style="flex:1;text-align:right">
+          <div style="font-size:13px;font-weight:500;color:var(--text)">${cr.nom}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px">${cr.verdict||''}</div>
         </div>
-        <div class="prog-bar">
-          <div class="prog-fill" style="width:${pct}%;background:${fillColor}"></div>
+        <div class="crit-mini-bar">
+          <div class="crit-mini-fill" style="width:${cp}%;background:${cc.bg}"></div>
         </div>
-        <p style="margin-top:5px">${cr.note||''}</p>
-        ${cr.fix ? `<div class="fix-chip" onclick="applyFix('${cr.fix.replace(/'/g,"\\'")}')">💡 ${cr.fix}</div>` : ''}
+        <div style="font-size:14px;font-weight:700;color:${cc.text};min-width:36px;text-align:center">${cr.note}/${cr.noteMax}</div>
+        <span style="color:var(--muted);font-size:12px">▾</span>
+      </div>
+      <div class="crit-body">
+        ${spHtml ? `<div style="margin-bottom:.6rem"><div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:.35rem">التفاصيل</div>${spHtml}</div>` : ''}
+        ${pfsHtml ? `<div style="margin-bottom:.4rem"><span style="font-size:10px;color:var(--muted)">نقاط القوة: </span>${pfsHtml}</div>` : ''}
+        ${pamsHtml ? `<div><span style="font-size:10px;color:var(--muted)">للتحسين: </span>${pamsHtml}</div>` : ''}
       </div>
     </div>`;
   }).join('');
 
-  const strengthsHtml = (data.topStrengths||[]).map(s=>
-    `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);direction:rtl"><span style="color:#1D9E75;font-size:14px">✓</span>${s}</div>`
-  ).join('');
+  const synth=data.synthese||{};
+  const pfHtml=(synth.pointsForts||[]).map(p=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px;direction:rtl;margin-bottom:3px"><span style="color:#1D9E75">✓</span>${p}</div>`).join('');
+  const ikHtml=(synth.ikhlalat||[]).map((p,i)=>`<div style="display:flex;align-items:flex-start;gap:5px;font-size:12px;direction:rtl;margin-bottom:3px"><span style="background:#FAECE7;color:#993C1D;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0">${i+1}</span>${p}</div>`).join('');
+  const tawHtml=(synth.tawsiyat||[]).map(p=>`<div style="display:flex;align-items:center;gap:5px;font-size:12px;direction:rtl;margin-bottom:3px"><span style="color:#185FA5">💡</span>${p}</div>`).join('');
 
-  const fixesHtml = (data.topFixes||[]).map((f,i)=>
-    `<div style="display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text);direction:rtl;margin-bottom:4px">
-      <span style="background:#FAECE7;color:#993C1D;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px">${i+1}</span>
-      ${f}
-    </div>`
-  ).join('');
-
-  area.innerHTML = `
+  area.innerHTML=`
   <div style="display:flex;flex-direction:column;gap:10px">
 
-    <!-- Score header -->
+    <!-- Global score card -->
     <div class="card" style="display:flex;align-items:center;gap:1rem;direction:rtl">
-      <div class="score-ring ${scoreClass}">${data.globalScore}</div>
+      ${buildGaugeSVG(data.noteGlobale, 100, gc.bg)}
       <div style="flex:1">
-        <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:4px">التقييم العام: ${data.globalLabel||''}</div>
-        <div style="font-size:12px;color:var(--muted)">تحليل شامل وفق المعايير الرسمية لوزارة التربية التونسية</div>
-        <div class="prog-bar" style="margin-top:8px;height:8px">
-          <div class="prog-fill" style="width:${data.globalScore}%;background:${scoreColor}"></div>
-        </div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${emoji} ${data.appreciation||'التقييم'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:.5rem">${data.tawte2a||''}</div>
+        <div style="font-size:12px;color:${gc.text};background:${gc.light};border:1px solid ${gc.border};padding:4px 10px;border-radius:6px;display:inline-block">${data.niveauGlobal||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+        <button class="abtn green" onclick="generateRemediation('${(data.decisionFinale||'').replace(/'/g,"\'")}')">
+          💊 خطة علاجية
+        </button>
+        <button class="abtn" onclick="resetCorrect()">
+          + تفقّد جديد
+        </button>
       </div>
     </div>
 
     <!-- Criteria -->
     <div class="card">
       <div class="card-h" style="direction:rtl">المعايير التفصيلية</div>
-      <div style="display:flex;flex-direction:column;gap:8px">${criteriaHtml}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${critsHtml}</div>
     </div>
 
-    <!-- Strengths & Fixes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <!-- Synthesis -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
       <div class="card">
-        <div class="card-h" style="direction:rtl;color:#1D9E75">✓ نقاط القوة</div>
-        <div style="display:flex;flex-direction:column;gap:6px">${strengthsHtml}</div>
+        <div class="card-h" style="color:#1D9E75;direction:rtl">✓ نقاط القوة</div>
+        ${pfHtml||'<div style="font-size:11px;color:var(--muted)">—</div>'}
       </div>
       <div class="card">
-        <div class="card-h" style="direction:rtl;color:#993C1D">⚡ إصلاحات عاجلة</div>
-        <div>${fixesHtml}</div>
+        <div class="card-h" style="color:#993C1D;direction:rtl">⚠️ الإخلالات</div>
+        ${ikHtml||'<div style="font-size:11px;color:var(--muted)">—</div>'}
+      </div>
+      <div class="card">
+        <div class="card-h" style="color:#185FA5;direction:rtl">💡 التوصيات</div>
+        ${tawHtml||'<div style="font-size:11px;color:var(--muted)">—</div>'}
       </div>
     </div>
 
-    <!-- Actions -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="abtn green" onclick="improveJadadha('${originalText.substring(0,200).replace(/'/g,"\\'").replace(/\n/g,' ')}')">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="white"/></svg>
-        تحسين الجذاذة تلقائياً
-      </button>
-      <button class="abtn" onclick="resetCorrect()">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        جذاذة جديدة
-      </button>
+    <!-- Decision -->
+    <div class="card" style="direction:rtl;background:${gc.light};border-color:${gc.border}">
+      <div style="font-size:12px;font-weight:600;color:${gc.text};margin-bottom:4px">القرار النهائي</div>
+      <div style="font-size:13px;color:var(--text)">${data.decisionFinale||''}</div>
     </div>
+
+    <!-- Remediation placeholder -->
+    <div id="remediationBox" style="display:none" class="remediation-box">
+      <div style="font-size:13px;font-weight:500;color:var(--bd);margin-bottom:.5rem">💊 الخطة العلاجية المقترحة</div>
+      <div id="remediationContent" style="font-size:12px;color:var(--text);line-height:1.75;direction:rtl"></div>
+    </div>
+
   </div>`;
 
-  area.scrollIntoView({behavior:'smooth', block:'start'});
+  area.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function applyFix(fix) {
-  navigator.clipboard.writeText(fix).then(()=>{
-    alert('تم نسخ الاقتراح: ' + fix);
-  });
+function togCritResult(head){
+  const body=head.nextElementSibling;
+  const arr=head.querySelector('span:last-child');
+  body.classList.toggle('open');
+  if(arr) arr.textContent=body.classList.contains('open')?'▴':'▾';
 }
 
-function improveJadadha(text) {
-  const improved = `أنت مستشار بيداغوجي تونسي خبير. حسّن هذه الجذاذة وأصلح أخطاءها البيداغوجية:\n\n${text}\n\nركّز على: استبدال العبارات العامة بمحتوى خاص، إكمال الخطوات الناقصة، تقوية شبكة التقييم.`;
-  document.getElementById('fTitle').value = improved.substring(0,100);
-  nav('gen', document.querySelectorAll('.nbtn')[1]);
+async function generateRemediation(decision){
+  const box=document.getElementById('remediationBox');
+  const content=document.getElementById('remediationContent');
+  box.style.display='block';
+  content.textContent='جاري إعداد الخطة العلاجية...';
+
+  try {
+    const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,
+        messages:[{role:'user',content:`أنت مستشار بيداغوجي تونسي. بناءً على هذا القرار: "${decision}"، اكتب خطة علاجية عملية ومحددة في 5 نقاط قابلة للتطبيق فوراً في القسم.`}]})
+    });
+    const j=await r.json();
+    content.textContent=(j.content||[]).map(b=>b.text||'').join('');
+  } catch(e){ content.textContent='⚠️ تعذّر إعداد الخطة: '+e.message; }
 }
 
-function resetCorrect() {
+function resetCorrect(){
   document.getElementById('correctInput').value='';
   document.getElementById('correctResultArea').style.display='none';
   document.getElementById('cMat').value='';
   document.getElementById('cLv').value='';
+  clearFile();
 }
+
 
 updateHome();
 </script>
