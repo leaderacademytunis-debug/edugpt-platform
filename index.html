@@ -1939,21 +1939,24 @@ async function startCorrect() {
   const totalMax = weights.reduce((s,cr)=>s+cr.noteMax,0);
   const weightsJSON = JSON.stringify(weights, null, 2);
 
-  const SYS_C = `أنت مفتش تربوي تونسي خبير. أجب بـ JSON فقط بدون أي نص خارجه.
+  const SYS_C = `أنت مفتش تربوي تونسي. أجب بـ JSON صحيح ومكتمل فقط بدون أي نص خارجه.
+هيكل الجواب المطلوب:
+{"noteGlobale":75,"appreciation":"جيد","niveauGlobal":"قابل للتطبيق","tawte2a":"جملة واحدة","criteres":[{"id":1,"nom":"اسم","note":2.5,"noteMax":3,"pourcentage":83,"sousPoints":[{"label":"بند","noteObtenue":0.5,"noteMax":0.5,"commentaire":"ملاحظة"}],"pointsForts":["ق1"],"pointsAmeliorer":["ت1"],"verdict":"حكم"}],"synthese":{"pointsForts":["ق1","ق2"],"ikhlalat":["إ1"],"tawsiyat":["ت1","ت2"]},"decisionFinale":"القرار"}
+قواعد: لا تتجاوز noteMax — noteGlobale من 100 — JSON مكتمل دائماً.`;
 
-قيّم الوثيقة وفق هذه الأوزان بدقة — لا تتجاوز noteMax لأي عنصر:
-${weightsJSON}
+  // Build concise weights description (not full JSON)
+  const weightsDesc = weights.map(w=>
+    `${w.nom}(/${w.noteMax}): ${w.sousPoints.map(sp=>sp.label+'→/'+sp.noteMax).join(', ')}`
+  ).join(' | ');
 
-المجموع الكلي: ${totalMax} نقطة. noteGlobale = (المجموع/الكلي×100).
+  const USR_C = `فقّد هذه ${docLabel}${mat?' مادة '+mat:''}${lv?' '+lv:''}.
 
-ابحث عن العبارات الممنوعة: "يلاحظ الأمثلة" "يشارك شفهياً" "يستنتج القاعدة" وانقص منها.
+الأوزان: ${weightsDesc}
+المجموع: ${totalMax} → noteGlobale من 100.
+عبارات ممنوعة: "يلاحظ الأمثلة" "يشارك شفهياً" "يستنتج القاعدة" — انقص عند وجودها.
 
-أجب بهذا JSON فقط — اجعل كل نص قصيراً (جملة واحدة):
-{"noteGlobale":71,"appreciation":"حسن جداً","niveauGlobal":"قابل للتطبيق","tawte2a":"توطئة موجزة","criteres":[{"id":1,"nom":"اسم المعيار","note":2.5,"noteMax":3,"pourcentage":83,"sousPoints":[{"label":"البند","noteObtenue":0.5,"noteMax":0.5,"commentaire":"ملاحظة قصيرة"}],"pointsForts":["نقطة"],"pointsAmeliorer":["تحسين"],"verdict":"حكم قصير"}],"synthese":{"pointsForts":["ق1","ق2","ق3"],"ikhlalat":["إ1","إ2"],"tawsiyat":["ت1","ت2","ت3"]},"decisionFinale":"القرار النهائي"}`;
-
-  const USR_C = `فقّد هذه ${docLabel}${mat?' في مادة '+mat:''}${lv?' للـ'+lv:''}:
-
-${text}`;
+الوثيقة:
+${text.substring(0, 3000)}`;
 
   try {
     const r=await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
@@ -1962,8 +1965,25 @@ ${text}`;
     });
     const j=await r.json();
     if(j.error) throw new Error(j.error.message);
-    const raw=(j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-    const data=JSON.parse(raw);
+    let raw=(j.content||[]).map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+    // Robust JSON repair if truncated
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch(parseErr) {
+      // Try to repair truncated JSON
+      raw = raw.replace(/,\s*$/, ''); // remove trailing comma
+      // Close any open arrays/objects
+      let opens = (raw.match(/\[/g)||[]).length - (raw.match(/\]/g)||[]).length;
+      let openObj = (raw.match(/\{/g)||[]).length - (raw.match(/\}/g)||[]).length;
+      for(let i=0;i<opens;i++) raw += ']';
+      for(let i=0;i<openObj;i++) raw += '}';
+      try {
+        data = JSON.parse(raw);
+      } catch(e2) {
+        throw new Error('JSON غير مكتمل — حاول مع نص أقصر من الجذاذة');
+      }
+    }
     renderCorrectResult(data, text);
   } catch(e){
     console.error(e);
