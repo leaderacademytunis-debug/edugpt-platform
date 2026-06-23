@@ -1478,17 +1478,13 @@ async function enhanceCmd() {
   for(var k=0;k<keys.length;k++){ if(raw.indexOf(keys[k])>=0){ role=roleMap[keys[k]]; break; } }
 
   var sysMsg = 'أنت مهندس أوامر خبير. حوّل الأمر البسيط إلى prompt احترافي بالهيكل السبعي: Role+Context+Task+Format+Constraints+Example+Verification. موجز (50-80 كلمة). أجب بالأمر المحسّن فقط.';
-  var userMsg = 'الدور المقترح: "' + role + '"
-الأمر: ' + raw + '
-بنِ prompt بالهيكل السبعي.';
+  var userMsg = 'الدور: '+role+' | الأمر: '+raw+' | بنِ prompt بالهيكل السبعي.';
 
   try {
     var r = await fetch('https://damp-brook-57d0.leaderacademytunis.workers.dev',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,
-        messages:[{role:'user',content:sysMsg+'
-
-'+userMsg}]})
+        messages:[{role:'user',content:sysMsg+'\n\n'+userMsg}]})
     });
     var j = await r.json();
     var txt = (j.content||[]).map(function(b){return b.text||'';}).join('').trim() || localEnhance(raw,role);
